@@ -8,7 +8,9 @@
 
 	<div class="create-room-view">
 
+		<!-- reusable form for both this page & edit page -->
 		<RoomForm v-model="formData" />
+		
 		<!-- super barebone form -->
 		<form v-if="false" @submit.prevent="submit">
 			<label>
