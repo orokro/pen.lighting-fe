@@ -8,6 +8,7 @@
 
 	<div class="create-room-view">
 
+		<RoomForm v-model="formData" />
 		<!-- super barebone form -->
 		<form v-if="false" @submit.prevent="submit">
 			<label>
@@ -32,10 +33,13 @@
 <script setup>
 
 // vue stuffs
-import { ref } from 'vue';
+import { reactive, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useEditCodes } from '@/composables/useEditCodes';
 const router = useRouter();
+
+// components
+import RoomForm from '@/components/RoomForm.vue';
 
 // so we can store the response editCode & retrieve it later (for this room)
 const { saveEditCode } = useEditCodes();
@@ -45,6 +49,24 @@ const name = ref('');
 const password = ref('');
 const loading = ref(false);
 const error = ref('');
+
+
+const formData = reactive({
+	name: 'a room',
+	password: '',
+	themeColor: '00ABAE',
+	showCode: 'bottom-left',
+	penColors: [],
+	penlightSprite: null,
+	duplicateUsers: true,
+	duplicationThreshold: 10,
+	maxConcurrent: 100,	
+});
+
+watch(formData, (newVal)=>{
+	// console.log('formData changed', newVal);
+});
+
 
 // handle form submit
 async function submit() {
@@ -93,7 +115,7 @@ async function submit() {
 	.create-room-view {
 
 	}
-	
+
 	form {
 		display: grid;
 		gap: .75rem;
