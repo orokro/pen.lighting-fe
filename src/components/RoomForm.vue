@@ -404,7 +404,7 @@ function setMaxConcurrent(v) {
 
 		// box & grid layout
 		display: grid;
-		grid-template-columns: 1fr 2fr;
+		grid-template-columns: 3fr 1fr;
 		gap: 0.75rem 1rem;
 		align-items: start;
 
