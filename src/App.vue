@@ -12,11 +12,10 @@
 
 	<!-- 👇 This is where the current route component renders -->
 	<main class="main-content" align="center">
-		<div class="main-column">
-			<RouterView />
-		</div>
+		<RouterView />
 	</main>
 
+	<br/>
 </template>
 <script setup>
 
@@ -57,7 +56,7 @@ import Header from './components/Header.vue';
 
 		// spacing & center
 		margin: 60px auto 40px auto;
-		padding: 20px;
+		padding: 40px;
 		
 		position: relative;
 		left: 5px;
@@ -79,6 +78,12 @@ import Header from './components/Header.vue';
 			max-width: 100px;
 		}
 
+		// text settings
+		font-size: 30px;
+		font-family: "Permanent Marker", sans-serif;
+		font-weight: 400;
+		font-style: normal;
+		color:rgb(3, 90, 92);
 	}// .main-content
 
 </style>

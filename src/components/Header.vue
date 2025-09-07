@@ -59,6 +59,7 @@
 		background:rgba(177, 85, 230, 0.4);
 		border-bottom: 6px solid white;
 		height: 262px;
+		
 
 		// box for the logo
 		.logo-box {
@@ -99,7 +100,8 @@
 						color: hsl(260, 80%, 40%);
 						font-weight: bold;
 						font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-
+						font-family: "Permanent Marker", sans-serif;
+						
 						&:hover {
 							color: hsl(260, 80%, 60%);
 						}

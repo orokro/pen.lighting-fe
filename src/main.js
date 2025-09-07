@@ -5,9 +5,14 @@
 	Kick off for the Vue app.
 */
 
+// vue & app
 import { createApp } from 'vue'
-import './style.css'
 import App from './App.vue'
 import router from './router'
 
+// styles
+import './style.css'
+import 'material-icons/iconfont/material-icons.css';
+
+// load middle-ware & kick off app
 createApp(App).use(router).mount('#app')
