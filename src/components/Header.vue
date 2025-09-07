@@ -14,6 +14,25 @@
 		<div class="logo-box">
 
 			<!-- bar of links -->
+			<div class="links-bar">
+				
+				<div class="link">
+					<RouterLink to="/">Home</RouterLink>
+				</div>
+
+				<div class="link">
+					<RouterLink to="/create">Create Room</RouterLink>
+				</div>
+
+				<div class="link">
+					<RouterLink to="/edit">Edit Room</RouterLink>
+				</div>
+
+				<div class="link">
+					<RouterLink to="/about">About</RouterLink>
+				</div>
+
+			</div>
 			
 			<!-- actual logo image -->
 			<div class="tilt">
@@ -38,15 +57,17 @@
 	.header-bar {
 
 		background:rgba(177, 85, 230, 0.4);
+		border-bottom: 6px solid white;
+		height: 262px;
 
 		// box for the logo
 		.logo-box {
 
-			// for debug
-			/* border: 1px solid red; */
-
 			// box settings
 			display: inline-block;
+			padding: 0px none;
+			margin: 0px none;
+			
 			max-width: 650px;
 			width: 650px;
 			height: 260px;
@@ -54,12 +75,45 @@
 			// for positioning children absolutely
 			position: relative;
 
+			// bar of links
+			.links-bar {
+				
+				position: absolute;
+				inset: auto 20px -30px 20px;
+				height: 60px;
+
+				background: white;
+				border-radius: 100px;
+
+				display: flex;
+				flex-direction: row;
+				justify-content: space-around;
+				align-items: center;
+
+				.link {
+					padding: 20px 0px;
+					font-size: 1.5em;
+
+					a {
+						text-decoration: none;
+						color: hsl(260, 80%, 40%);
+						font-weight: bold;
+						font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+
+						&:hover {
+							color: hsl(260, 80%, 60%);
+						}
+					}// RouterLink
+				}// .link
+
+			}// .links-bar
+
 			// tilt animation helper
 			.tilt {
 
 				// fill the box, minus some padding
 				position: absolute;
-				inset: 10px 10px 0px 10px;
+				inset: 0px 20px 30px 20px;
 
 				// animation helpers
 				.float, .rock {
@@ -76,7 +130,7 @@
 				// for debug
 				/* border: 1px solid blue; */
 				width: 100%;
-					height: 100%;
+				height: 100%;
 
 				background-image: url('/img/pen.lighting_logo_med.png');
 				background-size: contain;
@@ -100,22 +154,22 @@
 		initial-value: 300; /* start around hot pink */
 	}
 
-	/* 1) gentle ±30° tilt */
+	/* 1) gentle ±5° tilt */
 	.tilt {
 		position: relative; /* so absolute child can position itself */
-		animation: tilt 6s ease-in-out infinite alternate;
+		animation: tilt 6s linear infinite alternate;
 	}
 	@keyframes tilt {
-		0%   { transform: rotate(-5deg); }
+		0%   { transform: rotate(-3deg); }
 		50%  { transform: rotate(  0deg); } /* sine-ish midpoint */
-		100% { transform: rotate( 5deg); }
+		100% { transform: rotate( 3deg); }
 	}
 
 	/* 2) out-of-phase float ±10px */
 	.float {
-		animation: bob 7s ease-in-out infinite alternate;
+		animation: bob 3s linear infinite alternate;
 		/* phase offset so it doesn't peak when tilt peaks */
-		animation-delay: -3.5s;
+		/* animation-delay: -3.5s; */
 	}
 	@keyframes bob {
 		0%   { transform: translateY(-10px); }

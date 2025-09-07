@@ -11,8 +11,10 @@
 	
 
 	<!-- 👇 This is where the current route component renders -->
-	<main>
-		<RouterView />
+	<main class="main-content" align="center">
+		<div class="main-column">
+			<RouterView />
+		</div>
 	</main>
 
 </template>
@@ -31,7 +33,7 @@ import Header from './components/Header.vue';
 	body {
 
 		// use our looping striped background
-		background: url('/img/bg_pattern.png') repeat center center fixed;
+		background: url('/img/bg_pattern_2.png') repeat center center fixed;
 
 		// add a pseudo element that covers the entire body & blends a color overlay
 		&::before {
@@ -48,5 +50,35 @@ import Header from './components/Header.vue';
 		}// &::before
 		
 	}// body
+
+
+	// main content
+	.main-content {
+
+		// spacing & center
+		margin: 60px auto 40px auto;
+		padding: 20px;
+		
+		position: relative;
+		left: 5px;
+
+		// white background w/ some transparency
+		background: rgba(255,255,255,0.8);
+		background: #D9F0EE;
+		border-radius: 30px;
+		/* box-shadow: 0 0 12px rgba(0,0,0,0.2); */
+
+		border-right: 10px solid #9ACBC7;
+		border-bottom: 10px solid #9ACBC7;
+
+		// max width so it doesn't get too wide on big screens
+		max-width: 620px;
+
+		// main column inside the main content area
+		.main-column {
+			max-width: 100px;
+		}
+
+	}// .main-content
 
 </style>
