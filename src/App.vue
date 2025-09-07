@@ -6,18 +6,12 @@
 -->
 <template>
 
-	<header style="padding: 1rem; border-bottom: 1px solid #eee;">
-		<strong>pen.lighting</strong>
-		<nav style="display:inline-flex; gap:.75rem; margin-left:1rem;">
-			<RouterLink to="/">Home</RouterLink>
-			<RouterLink to="/create">Create</RouterLink>
-			<RouterLink to="/about">About</RouterLink>
-			<RouterLink to="/help">Help</RouterLink>
-		</nav>
-	</header>
+	<!-- our header & logo nav-bar -->
+	<Header/>
+	
 
 	<!-- 👇 This is where the current route component renders -->
-	<main style="padding:1rem;">
+	<main>
 		<RouterView />
 	</main>
 
@@ -27,8 +21,32 @@
 // vue
 import { ref } from 'vue'
 
-</script>
-<style lang="scss" scoped>
+// components
+import Header from './components/Header.vue';
 
+</script>
+<style lang="scss">
+
+	// global body styles
+	body {
+
+		// use our looping striped background
+		background: url('/img/bg_pattern.png') repeat center center fixed;
+
+		// add a pseudo element that covers the entire body & blends a color overlay
+		&::before {
+			content: '';
+			position: fixed;
+
+			top: 0; left: 0; right: 0; bottom: 0;
+			background: #00abae;
+			pointer-events: none;
+			mix-blend-mode: overlay;
+
+			z-index: -1;
+
+		}// &::before
+		
+	}// body
 
 </style>
