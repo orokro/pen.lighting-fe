@@ -5,11 +5,11 @@
 	The page that allows a user to create a room
 -->
 <template>
-	<div class="p-4">
-		<h1>Create Room</h1>
+
+	<div class="create-room-view">
 
 		<!-- super barebone form -->
-		<form @submit.prevent="submit">
+		<form v-if="false" @submit.prevent="submit">
 			<label>
 				Room Name
 				<input v-model="name" placeholder="My Stream Room" />
@@ -89,6 +89,11 @@ async function submit() {
 
 </script>
 <style scoped>
+
+	.create-room-view {
+
+	}
+	
 	form {
 		display: grid;
 		gap: .75rem;
