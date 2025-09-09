@@ -6,33 +6,40 @@
 -->
 <template>
 
-	<div class="p-4">
+	<div class="edit-room-view">
 
-		<h1>Edit Room: {{ roomCode }}</h1>
+		<div class="page-title" align="center">Room {{ roomCode }} Details:</div>
 
-		<div v-if="needsPrompt" class="mb-4">
-			<p>Enter your edit code to continue:</p>
-			<input v-model="inputCode" @keyup.enter="submitCode" />
-			<button @click="submitCode">Submit</button>
-			<p v-if="error" style="color:crimson">{{ error }}</p>
+		<div class="page-title" align="center">Edit Room {{ roomCode }} Below:</div>
+
+		<!-- reusable form for both this page & edit page -->
+		<RoomForm v-model="formData" />
+
+		<!-- create row -->
+		<div class="update-row">
+
+			<button 
+				class="join-button big-button"
+				@click="submit"
+			>
+				Update / Edit Room
+			</button>
 		</div>
 
-		<div v-else>
-			<p style="opacity:.7">Using edit code: {{ masked }}</p>
-
-			<!-- your edit form lives here; use editCode.value in API calls -->
-			<!-- Example: -->
-			<!-- <RoomSettingsForm :roomCode="roomCode" :editCode="editCode" /> -->
-		</div>
 	</div>
+
 
 </template>
 <script setup>
 
 // vue stuffs
-import { ref, onMounted, computed } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import { useEditCodes } from '@/composables/useEditCodes'
+import { reactive, toRaw, unref, ref, watch, computed, onMounted } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import { useEditCodes } from '@/composables/useEditCodes';
+
+// components
+import RoomForm from '@/components/RoomForm.vue';
+import RoomDetailsForm from '@/components/RoomDetailsForm.vue';
 
 const route = useRoute()
 const router = useRouter()
@@ -40,6 +47,19 @@ const roomCode = route.params.room_code
 
 // so we can store/retrieve edit codes for rooms
 const { getEditCode, saveEditCode } = useEditCodes()
+
+// object w/ all the user customizable data for the Room form
+const formData = reactive({
+	name: 'a room',
+	password: '',
+	themeColor: '00ABAE',
+	showCode: 'bottom-left',
+	penColors: [],
+	penlightSprite: null,
+	duplicateUsers: true,
+	duplicationThreshold: 10,
+	maxConcurrent: 100,	
+});
 
 const editCode = ref(null)
 const needsPrompt = ref(false)
@@ -85,8 +105,17 @@ async function submitCode() {
 	needsPrompt.value = false
 }
 </script>
+<style lang="scss" scoped>
 
-<style scoped>
+	.edit-room-view {
+
+		// the row w/ our create button
+		.update-row {
+
+			margin-top: 40px;
+		}// .update-row
+
+	}// .edit-room-view
 
 	.mb-4 {
 		margin-bottom: 1rem;
