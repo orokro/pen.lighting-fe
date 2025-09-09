@@ -11,7 +11,10 @@
 
 		<!-- NAME -->
 		<div class="row">
-			<label class="label" for="name">Name</label>
+			<div class="label" for="name">
+				Name
+				<div class="desc">(optional)</div>
+			</div>
 			<div class="field">
 				<input
 					id="name"
@@ -27,7 +30,10 @@
 
 		<!-- PASSWORD -->
 		<div class="row">
-			<label class="label" for="password">Password</label>
+			<div class="label" for="password">
+				Password
+				<div class="desc">optional - to make private room</div>
+			</div>
 			<div class="field">
 				<input
 					id="password"
@@ -37,28 +43,35 @@
 					placeholder="(optional)"
 					:class="{ invalid: !!errors.password }"
 				/>
-				<p class="hint">alphanumeric + common symbols, max 64</p>
 				<p v-if="errors.password" class="error">{{ errors.password }}</p>
 			</div>
 		</div>
 
 		<!-- THEME COLOR -->
 		<div class="row">
-			<label class="label" for="themeColor">Theme Color</label>
+			<div class="label" for="themeColor">
+				Theme Color
+				<div class="desc">Used for name text & Code text</div>
+			</div>
 			<div class="field color-field">
-				<input
-					id="themeColor"
-					type="color"
-					v-model="themeColorInput"
-					aria-label="Pick a theme color"
-				/>
-				<span class="hex-preview">#{{ model.themeColor || '000000' }}</span>
+				<div class="color-wrapper">
+					<input
+						id="themeColor"
+						type="color"
+						v-model="themeColorInput"
+						aria-label="Pick a theme color"
+					/>
+				</div>
+				<span v-if="false" class="hex-preview">#{{ model.themeColor || '000000' }}</span>
 			</div>
 		</div>
 
 		<!-- SHOW CODE -->
 		<div class="row">
-			<label class="label" for="showCode">Show Code</label>
+			<div class="label" for="showCode">
+				Show Code
+				<div class="desc">Where to show the Code in the OBS source</div>
+			</div>
 			<div class="field">
 				<select id="showCode" :value="model.showCode" @change="setShowCode($event.target.value)">
 					<option value="hidden">Hidden</option>
@@ -72,7 +85,13 @@
 
 		<!-- PEN COLORS -->
 		<div class="row">
-			<label class="label">Pen Colors</label>
+
+			<div class="label">
+				Pen Colors
+				<div class="desc">Add colors for chatters to pick for their pen.</div>
+				<div class="desc">Or, leave empty and theme color will be used.</div>
+			</div>
+
 			<div class="field">
 				<div class="swatches">
 					<button
@@ -89,7 +108,11 @@
 
 					<!-- Inline Add/Recolor Popover -->
 					<div v-if="showAddPicker" class="popover">
-						<input ref="addPickerRef" type="color" v-model="tempPick" />
+						<div align="center">
+							<div class="color-wrapper">
+								<input ref="addPickerRef" type="color" v-model="tempPick" />
+							</div>
+						</div>
 						<div class="popover-actions">
 							<button type="button" @click="confirmAddColor">Confirm</button>
 							<button type="button" class="ghost" @click="cancelAddColor">Cancel</button>
@@ -100,19 +123,24 @@
 					<div v-if="showEditPickerIndex >= 0" class="popover">
 						<div class="popover-actions">
 							<button type="button" class="danger" @click="deleteColor(showEditPickerIndex)">Delete</button>
-							<button type="button" @click="startRecolor(showEditPickerIndex)">Recolor</button>
 							<button type="button" class="ghost" @click="showEditPickerIndex = -1">Close</button>
 						</div>
 					</div>
 				</div>
-				<p class="hint">Click a swatch to delete or recolor. Values save without the #.</p>
 				<p v-if="errors.penColors" class="error">{{ errors.penColors }}</p>
 			</div>
 		</div>
 
 		<!-- SPRITE -->
 		<div class="row">
-			<label class="label">Penlight Sprite</label>
+			<div class="label">
+				Penlight Sprite
+				<div class="desc">
+					Optional PNG to show as base penlight in OBS.
+					<br/>
+					Will be resized to 256×256.
+				</div>
+			</div>
 			<div class="field sprite-field">
 				<div class="preview" v-if="model.penlightSprite">
 					<img :src="model.penlightSprite" alt="Sprite preview" />
@@ -129,14 +157,16 @@
 						Clear Image
 					</button>
 				</div>
-				<p class="hint">PNG only. Resized to 256×256 client-side.</p>
 			</div>
 		</div>
 
 		<!-- DUPLICATE USERS (toggle) -->
 		<div class="row">
-			<label class="label">Duplicate Users?</label>
-			<div class="field">
+			<div class="label">
+				Duplicate Users?
+				<div class="desc">Show users more than once to fill space?</div>
+			</div>
+			<div class="field switch-field">
 				<label class="switch">
 					<input type="checkbox" :checked="model.duplicateUsers" @change="toggleDuplicateUsers($event.target.checked)" />
 					<span class="slider"></span>
@@ -146,7 +176,10 @@
 
 		<!-- DUPLICATION THRESHOLD -->
 		<div class="row">
-			<label class="label" for="dupThresh">Dupe Threshold</label>
+			<div class="label" for="dupThresh">
+				Dupe Threshold
+				<div class="desc">Cut off to stop duplication</div>
+			</div>
 			<div class="field">
 				<input
 					id="dupThresh"
@@ -161,7 +194,10 @@
 
 		<!-- MAX CONCURRENT -->
 		<div class="row">
-			<label class="label" for="maxConc">Max Concurrent</label>
+			<div class="label" for="maxConc">
+				Max Concurrent
+				<div class="desc">How many to render in OBS</div>
+		</div>
 			<div class="field">
 				<input
 					id="maxConc"
@@ -303,21 +339,6 @@ function deleteColor(i) {
 	showEditPickerIndex.value = -1
 }
 
-function startRecolor(i) {
-	tempPick.value = `#${model.value.penColors[i]}`
-	showEditPickerIndex.value = -1
-	showAddPicker.value = true
-	confirmAddColorOnce(
-		() => {
-			const hex = tempPick.value
-			if (HEX6_WITH_HASH.test(hex)) {
-				model.value.penColors[i] = hex.slice(1).toUpperCase()
-			}
-			showAddPicker.value = false
-		},
-		() => { showAddPicker.value = false }
-	)
-}
 
 let confirmAddColorOnceCleanup = null
 function confirmAddColorOnce(onConfirm, onCancel) {
@@ -412,31 +433,52 @@ function setMaxConcurrent(v) {
 		// rows are just a container for label + field
 		.row { display: contents; }
 
+		// labels for the fields
 		.label {
-			justify-self: end;
-			align-self: center;
+
+			// so we can stack on top
+			display: flex;
+			flex-direction: column;
+			justify-content: start;
+			
 			text-align: right;
 			font-weight: 600;
 			padding-top: 0.4rem;
+
+			// smaller desc line
+			.desc {
+				font-family: "Indie Flower", cursive;
+				color: #00ABAE;
+				font-size: 16px;
+				font-weight: normal;
+
+			}// .desc
+
 		}// .label
 
+
+		// the area that contains the input / widgets
 		.field {
+
+			// box
 			justify-self: start;
 			width: 100%;
 
+			// common input styles
 			input[type="text"],
 			input[type="password"],
 			input[type="number"],
-
-
 			select {
 
 				width: 100%;
 				padding: 0.5rem 0.6rem;
-				border: 1px solid #d0d5dd;
+
+				border: 3px solid #d0d5dd;
 				border-radius: 8px;
+				outline: none;				
+				
+				// text
 				font-size: 0.95rem;
-				outline: none;
 
 				&:focus {
 					border-color: #7c8df9;
@@ -447,36 +489,67 @@ function setMaxConcurrent(v) {
 
 			}// select
 
-			.hint {
-
-				margin-top: 0.35rem;
-				font-size: 0.8rem;
-				color: #667085;
-			}// .hint
-
+			// for when input has an error
 			.error {
 
+				// spacing
 				margin-top: 0.35rem;
-				font-size: 0.82rem;
+
+				// text
+				font-family: "Indie Flower", cursive;				
 				color: #e54848;
-				font-weight: 600;
+				font-weight: normal;
+				font-size: 16px;
+				
 			}// .error
 
 		}// .field
 
+		// well use this as a hack with overflow hidden to clip the color input
+		.color-wrapper {
+
+			// fixed size
+			width: 90px;
+			height: 40px;
+			border: 3px solid #d0d5dd;
+			border-radius: 10px;
+
+			// so we can position the color input
+			position: relative;
+
+			// allow NOTHING to escape
+			overflow: clip;
+
+			input {
+				// make it huge so the user can pick any color
+				position: absolute;
+				inset: -10px 10px -10px -10px;
+				width: 100px;
+				height: 50px;
+
+				border: none;
+				padding: 0;
+				margin: 0;
+				cursor: pointer;
+
+			}// input
+
+		}// .color-wrapper
+
+		// special field for color input + hex preview
 		.color-field {
+
 			display: flex;
 			align-items: center;
 			gap: 0.6rem;
 
 			input[type="color"] {
 
-				width: 2.25rem;
-				height: 2.25rem;
 				padding: 0;
 				border: none;
 				background: transparent;
 				cursor: pointer;
+
 			}// input[type="color"]
 
 			.hex-preview {
@@ -495,12 +568,21 @@ function setMaxConcurrent(v) {
 			gap: 0.5rem;
 			position: relative;
 
+			// the color swatches & the button to add em
 			.swatch, .add {
+
+				// fixed rounded square
 				width: 32px;
 				height: 32px;
 				border-radius: 8px;
-				border: 1px solid #d0d5dd;
+
+				// thicc border
+				border: 3px solid #d0d5dd;
+
+				// look clickable
 				cursor: pointer;
+
+				// aligntment
 				display: inline-flex;
 				align-items: center;
 				justify-content: center;
@@ -509,32 +591,41 @@ function setMaxConcurrent(v) {
 
 			}// swatch, .add
 
+			// just ou button
 			.add {
 
 				background: #f3f4f6;
 				color: #475467;
 				font-weight: 700;
+				font-size: 24px;
 			}// .add
 
+			// the popup to add/remove
 			.popover {
 
+				// fixed position below the swatches
 				position: absolute;
 				top: 42px;
 				left: 0;
-				padding: 0.6rem;
-				background: #fff;
-				border: 1px solid #e4e7ec;
-				border-radius: 10px;
-				box-shadow: 0 12px 24px rgba(16, 24, 40, 0.12);
 				z-index: 5;
 
+				// box
+				padding: 0.6rem;
+				background: #fff;
+				border: 3px solid #e4e7ec;
+				border-radius: 10px;
+				box-shadow: 0 12px 24px rgba(16, 24, 40, 0.12);
+
+				// things inside the popover
 				.popover-actions {
+
 					display: flex;
 					gap: 0.5rem;
 					margin-top: 0.5rem;
 
+					// the button styles
 					button {
-						border: 1px solid #d0d5dd;
+						border: 3px solid #d0d5dd;
 						background: #fff;
 						padding: 0.4rem 0.6rem;
 						border-radius: 8px;
@@ -571,15 +662,20 @@ function setMaxConcurrent(v) {
 					display: block;
 					width: 96px;
 					height: 96px;
-					object-fit: contain;
+
 					border-radius: 8px;
 					border: 1px solid #e4e7ec;
+
+					object-fit: contain;
+					
 					background: repeating-conic-gradient(#fff 0% 25%, #f3f4f6 0% 50%) 50% / 16px 16px;
 				}// img
 
 			}// .preview
 
+			// area with the clear & file input
 			.sprite-actions {
+
 				display: flex;
 				gap: 0.5rem;
 				align-items: center;
@@ -595,44 +691,75 @@ function setMaxConcurrent(v) {
 
 					width: 100px;
 
-
 				}// input[type="file"]
 
 			}// .sprite-actions
 
 		}// .sprite-field
 
+
+		// the area that the toggle spawns
+		.switch-field, .color-field {
+
+			display: flex;
+			align-items: center;
+			height: 100%;
+			
+		}// .switch-field
+
+		// fancy toggle
 		.switch {
 
+			// so we can position children, absolutely
 			position: relative;
+
+			// box
 			display: inline-block;
 			width: 48px;
 			height: 28px;
 
+			// the actual checkbox is hidden
 			input { opacity: 0; width: 0; height: 0; }
 
+			// the slider that moves
 			.slider {
-				position: absolute;
-				cursor: pointer;
+
+				// fixed size & round
+				position: absolute;	
 				top: 0; left: 0; right: 0; bottom: 0;
-				background-color: #e4e7ec;
-				transition: 0.2s;
 				border-radius: 999px;
 
+				// animated gray bg
+				background-color:rgb(189, 190, 192);
+
+				// for animated toggle
+				transition: 0.2s;				
+
+				// look clickable
+				cursor: pointer;
+
 				&::before {
-					position: absolute;
+
+					// required to render pseudo element
 					content: "";
-					height: 22px; width: 22px;
+
+					// the actual white circle that moves
+					position: absolute;
 					left: 3px; top: 3px;
-					background-color: white;
-					transition: 0.2s;
+					height: 22px; width: 22px;
 					border-radius: 999px;
+					background-color: white;
 					box-shadow: 0 1px 2px rgba(16, 24, 40, 0.3);
+
+					// smoooth
+					transition: 0.2s;
+					
 				}// &::before
 
 			}// .slider
 
-			input:checked + .slider { background-color: #7c8df9; }
+			// when checked, move the slider
+			input:checked + .slider { background-color: #00ABAE; }
 			input:checked + .slider::before { transform: translateX(20px); }
 
 		}// .switch
