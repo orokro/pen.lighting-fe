@@ -17,12 +17,11 @@
 		<div v-if="displayState === STATE.NEEDS_CODE" align="center">
 
 			<div class="page-title mb-4">Enter Edit Code for Room {{ roomCode }}</div>
-			<div v-if="error" class="error mb-4">{{ error }}</div>
 			<input
 				type="text"
 				v-model="inputCode"
 				placeholder="Edit Code"
-				class="room-code-input mb-4"
+				class="room-code-input mb-4 big-input"
 			/>
 			<br />
 			<button 
@@ -77,9 +76,10 @@ import { useEditCodes } from '@/composables/useEditCodes';
 import RoomForm from '@/components/RoomForm.vue';
 import RoomDetailsForm from '@/components/RoomDetailsForm.vue';
 
-const route = useRoute()
-const router = useRouter()
-const roomCode = route.params.room_code
+// fet the room code from the URL
+const route = useRoute();
+const router = useRouter();
+const roomCode = route.params.room_code;
 
 // so we can store/retrieve edit codes for rooms
 const { getEditCode, saveEditCode } = useEditCodes()
@@ -114,10 +114,9 @@ const STATE = {
 // initial state starts loading no matter what
 const displayState = ref(STATE.LOADING)
 
-const editCode = ref(null)
-const needsPrompt = ref(false)
-const inputCode = ref('')
-const error = ref('')
+// saved edit coded & the input box if we need to prompt
+const editCode = ref(null);
+const inputCode = ref('');
 
 // when we mount, we gotta see if we can recover the 
 onMounted(() => {
@@ -133,7 +132,7 @@ onMounted(() => {
 	}
 
 	// 3) otherwise, prompt
-	needsPrompt.value = true;
+	displayState.value = STATE.NEEDS_CODE;
 });
 
 
@@ -177,28 +176,26 @@ async function getPageData(){
 	formData.duplicationThreshold = data.duplicationThreshold;
 	formData.maxConcurrent = data.maxConcurrent;
 
-	console.log(roomDetailsData);
-
 	// now we have a valid room
 	displayState.value = STATE.VALID_ROOM;
 }
 
 
+/**
+ * Handle the user submitting an edit code
+ */
 async function submitCode() {
-	// error.value = ''
-	// const code = inputCode.value?.trim()
-	// if (!code) {
-	// 	error.value = 'Please enter a code.'
-	// 	return
-	// }
+	
+	// right so we're actually not gonna do any validation here, just save it & try to load the room
+	if (!inputCode.value)
+		return;
 
-	// // Optional: verify with API before proceeding (pseudo):
-	// // const ok = await verifyEditCode(roomCode, code)
-	// // if (!ok) { error.value = 'Invalid code'; return }
+	// save it
+	editCode.value = inputCode.value;
+	saveEditCode(roomCode, editCode.value);
 
-	// editCode.value = code
-	// saveEditCode(roomCode, code)
-	// needsPrompt.value = false
+	// try to load the room data
+	getPageData();
 }
 
 // handle form submit update
@@ -230,7 +227,7 @@ async function submit() {
 		// 2) navigate to the edit page - it will recover the editCode from our store
 		await router.replace({ name: 'edit', params: { room_code: roomCode } });
 		window.location.reload();
-		
+
 	} catch (e) {
 
 		console.log(e);

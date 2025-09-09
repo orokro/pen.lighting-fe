@@ -67,3 +67,28 @@ body {
 	}
 
 }// .big-button
+
+
+// re-usable big input field
+.big-input {
+
+	// box
+	border-radius: 15px;
+	border: 10px solid #00abae;
+	width: 400px;
+
+	// spacing
+	margin-top: 0px;
+	margin-bottom: 20px;
+	padding: 20px 15px;
+
+	// text
+	font-size: 1.2em;
+	text-align: center;
+	&::placeholder {
+		font-style: italic;
+		font-family: "Permanent Marker", sans-serif;
+		color: #999;
+	}
+
+}// .big-input

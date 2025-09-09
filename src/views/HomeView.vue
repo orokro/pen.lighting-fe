@@ -17,7 +17,7 @@
 		<input
 			type="text"
 			placeholder="Room Code"
-			class="room-code-input"
+			class="room-code-input big-input"
 		/>
 
 		<!-- optional password row -->
@@ -29,7 +29,7 @@
 			<input
 				type="text"
 				placeholder="Password"
-				class="room-code-input"
+				class="room-code-input big-input"
 			/>
 
 		</div>
@@ -43,7 +43,7 @@
 			<input
 				type="text"
 				placeholder="Nickname"
-				class="room-code-input"
+				class="room-code-input big-input"
 			/>
 		</div>
 
@@ -98,24 +98,7 @@ import { ref } from 'vue'
 		// big ol' box
 		.room-code-input {
 
-			// box
-			border-radius: 15px;
-			border: 10px solid #00abae;
-			width: 400px;
-
-			// spacing
-			margin-top: 0px;
-			margin-bottom: 20px;
-			padding: 20px 15px;
-
-			// text
-			font-size: 1.2em;
-			text-align: center;
-			&::placeholder {
-				font-style: italic;
-				font-family: "Permanent Marker", sans-serif;
-				color: #999;
-			}
+			
 			
 		}// .room-code-input
 
