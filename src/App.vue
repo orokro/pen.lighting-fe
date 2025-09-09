@@ -72,6 +72,7 @@ import Header from './components/Header.vue';
 
 		// max width so it doesn't get too wide on big screens
 		max-width: 620px;
+		width: 620px;
 
 		// main column inside the main content area
 		.main-column {
@@ -84,6 +85,7 @@ import Header from './components/Header.vue';
 		font-weight: 400;
 		font-style: normal;
 		color:rgb(3, 90, 92);
+		
 	}// .main-content
 
 </style>

@@ -8,7 +8,7 @@
 
 	<!-- main outer most wrapper -->
 	<div class="room-form">
-		
+
 		<!-- NAME -->
 		<div class="row">
 			<div class="label" for="name">
@@ -487,7 +487,7 @@ function setMaxConcurrent(v) {
 
 				&.invalid { border-color: #e54848; }
 
-			}// select
+			}// input[type="text"], input[type="password"], input[type="number"], select
 
 			// for when input has an error
 			.error {
@@ -582,7 +582,7 @@ function setMaxConcurrent(v) {
 				// look clickable
 				cursor: pointer;
 
-				// aligntment
+				// alignment
 				display: inline-flex;
 				align-items: center;
 				justify-content: center;

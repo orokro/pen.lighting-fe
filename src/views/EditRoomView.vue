@@ -8,22 +8,58 @@
 
 	<div class="edit-room-view">
 
-		<div class="page-title" align="center">Room {{ roomCode }} Details:</div>
+		<!-- if we've just loaded we need to check our state, we'll show loading spinner -->
+		<div v-if="displayState === STATE.LOADING" align="center">
+			Loading...
+		</div>
 
-		<div class="page-title" align="center">Edit Room {{ roomCode }} Below:</div>
+		<!-- if we need an edit code, show the prompt -->
+		<div v-if="displayState === STATE.NEEDS_CODE" align="center">
 
-		<!-- reusable form for both this page & edit page -->
-		<RoomForm v-model="formData" />
-
-		<!-- create row -->
-		<div class="update-row">
-
+			<div class="page-title mb-4">Enter Edit Code for Room {{ roomCode }}</div>
+			<div v-if="error" class="error mb-4">{{ error }}</div>
+			<input
+				type="text"
+				v-model="inputCode"
+				placeholder="Edit Code"
+				class="room-code-input mb-4"
+			/>
+			<br />
 			<button 
 				class="join-button big-button"
-				@click="submit"
+				@click="submitCode"
 			>
-				Update / Edit Room
+				Edit Room
 			</button>
+		</div>
+		
+		<!-- otherwise, if we have a valid room -->
+		<div v-if="displayState === STATE.VALID_ROOM">
+
+			<!-- top section shows the useful details about room (not editable) -->
+			<div class="page-title" align="center">Room {{ roomCode }} Details:</div>
+
+			<!-- show the room details form -->
+			<RoomDetailsForm :data="roomDetailsData" class="mb-4" />
+			
+			<br/><br/>
+			<!-- section below is same as creation form-->
+			<div class="page-title" align="center">Edit Room {{ roomCode }} Below:</div>
+
+			<!-- reusable form for both this page & edit page -->
+			<RoomForm v-model="formData" />
+
+			<!-- create row -->
+			<div class="update-row">
+
+				<button 
+					class="join-button big-button"
+					@click="submit"
+				>
+					Update / Edit Room
+				</button>
+			</div>
+
 		</div>
 
 	</div>
@@ -33,7 +69,7 @@
 <script setup>
 
 // vue stuffs
-import { reactive, toRaw, unref, ref, watch, computed, onMounted } from 'vue';
+import { reactive, toRaw, unref, ref, watch, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useEditCodes } from '@/composables/useEditCodes';
 
@@ -48,6 +84,13 @@ const roomCode = route.params.room_code
 // so we can store/retrieve edit codes for rooms
 const { getEditCode, saveEditCode } = useEditCodes()
 
+// object with room details
+const roomDetailsData = reactive({
+	code: roomCode,
+	editCode: '',
+	obsLink: '',
+});
+
 // object w/ all the user customizable data for the Room form
 const formData = reactive({
 	name: 'a room',
@@ -61,18 +104,20 @@ const formData = reactive({
 	maxConcurrent: 100,	
 });
 
+// three states
+const STATE = {
+	LOADING: 'LOADING',
+	NEEDS_CODE: 'NEEDS_CODE',
+	VALID_ROOM: 'VALID_ROOM',
+};
+
+// initial state starts loading no matter what
+const displayState = ref(STATE.LOADING)
+
 const editCode = ref(null)
 const needsPrompt = ref(false)
 const inputCode = ref('')
 const error = ref('')
-
-const masked = computed(() => {
-	if (!editCode.value) return ''
-	// don’t show full secret in UI; adjust to preference
-	return editCode.value.length <= 4
-		? '••••'
-		: `${editCode.value.slice(0, 2)}•••${editCode.value.slice(-1)}`
-})
 
 // when we mount, we gotta see if we can recover the 
 onMounted(() => {
@@ -81,6 +126,9 @@ onMounted(() => {
 	const fromStore = getEditCode(roomCode);
 	if (fromStore) {
 		editCode.value = fromStore;
+
+		// load the page data
+		getPageData();
 		return;
 	}
 
@@ -88,21 +136,69 @@ onMounted(() => {
 	needsPrompt.value = true;
 });
 
+
+/**
+ * Hit the API with our roomCode & editCode (if we have one) to see if we can load the room data
+ */
+async function getPageData(){
+
+	// safety check
+	const payload = JSON.stringify({
+		editCode: editCode.value
+	});
+
+	// Call your API (adjust payload/endpoint to your actual schema)
+	const res = await fetch(`https://api.pen.lighting/rooms/${roomCode}/edit`, {
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json' },
+		body: payload
+	});
+
+	// if ok
+	if (!res.ok)
+		throw new Error(`Create failed (${res.status})`);
+
+	// get our response data, which will include the room
+	const data = await res.json();
+
+	// set room details
+	roomDetailsData.code = data.code;
+	roomDetailsData.editCode = data.editCode;
+	roomDetailsData.obsLink = `https://pen.lighting/obs/${data.code}`;
+
+	// update our form data
+	formData.name = data.name;
+	formData.password = data.password;
+	formData.themeColor = data.themeColor;
+	formData.showCode = data.showCode;
+	formData.penColors = data.penColors;
+	formData.penlightSprite = data.penlightSprite;
+	formData.duplicateUsers = data.duplicateUsers;
+	formData.duplicationThreshold = data.duplicationThreshold;
+	formData.maxConcurrent = data.maxConcurrent;
+
+	console.log(roomDetailsData);
+
+	// now we have a valid room
+	displayState.value = STATE.VALID_ROOM;
+}
+
+
 async function submitCode() {
-	error.value = ''
-	const code = inputCode.value?.trim()
-	if (!code) {
-		error.value = 'Please enter a code.'
-		return
-	}
+	// error.value = ''
+	// const code = inputCode.value?.trim()
+	// if (!code) {
+	// 	error.value = 'Please enter a code.'
+	// 	return
+	// }
 
-	// Optional: verify with API before proceeding (pseudo):
-	// const ok = await verifyEditCode(roomCode, code)
-	// if (!ok) { error.value = 'Invalid code'; return }
+	// // Optional: verify with API before proceeding (pseudo):
+	// // const ok = await verifyEditCode(roomCode, code)
+	// // if (!ok) { error.value = 'Invalid code'; return }
 
-	editCode.value = code
-	saveEditCode(roomCode, code)
-	needsPrompt.value = false
+	// editCode.value = code
+	// saveEditCode(roomCode, code)
+	// needsPrompt.value = false
 }
 </script>
 <style lang="scss" scoped>

@@ -50,7 +50,7 @@
 		</div>
 
 		<!-- OBS -->
-		<div class="row">
+		<div class="row row--full">
 			OBS Link
 			<div class="desc">Load this Link in OBS as a Browser Source!</div>
 			<input
@@ -66,7 +66,7 @@
 <script setup>
 
 // vue & libs
-import {  watch, ref } from 'vue'
+import {  watch, ref, onMounted } from 'vue'
 
 
 /**
@@ -106,6 +106,11 @@ watch(()=>props.data, (newVal, oldVal)=>{
 		updateFields()
 });
 
+// on mounted, populate fields
+onMounted(()=>{
+	updateFields()
+});
+
 </script>
 <style lang="scss" scoped>
 
@@ -121,6 +126,15 @@ watch(()=>props.data, (newVal, oldVal)=>{
 		// rows are just a container for label + field
 		.row { display: contents; }
 
+		 /* Make this specific row a real grid item that spans both columns */
+		.row--full {
+			display: flex;            // stack its own children
+			flex-direction: column;
+			gap: 0.4rem;
+
+			grid-column: 1 / -1;      // span across all columns
+		}
+
 		// labels for the fields
 		.label {
 
@@ -133,16 +147,17 @@ watch(()=>props.data, (newVal, oldVal)=>{
 			font-weight: 600;
 			padding-top: 0.4rem;
 
-			// smaller desc line
-			.desc {
-				font-family: "Indie Flower", cursive;
-				color: #00ABAE;
-				font-size: 16px;
-				font-weight: normal;
-
-			}// .desc
-
 		}// .label
+
+		// smaller desc line
+		.desc {
+
+			font-family: "Indie Flower", cursive;
+			color: #00ABAE;
+			font-size: 16px;
+			font-weight: normal;
+			
+		}// .desc
 
 		// the area that contains the input / widgets
 		.field {
@@ -150,30 +165,33 @@ watch(()=>props.data, (newVal, oldVal)=>{
 			// box
 			justify-self: start;
 			width: 100%;
-
-			// common input styles
-			input[type="text"],
-			input[type="number"],
-			select {
-
-				width: 100%;
-				padding: 0.5rem 0.6rem;
-
-				border: 3px solid #d0d5dd;
-				border-radius: 8px;
-				outline: none;				
-				
-				// text
-				font-size: 0.95rem;
-
-				&:focus {
-					border-color: #7c8df9;
-					box-shadow: 0 0 0 3px rgba(124, 141, 249, 0.2);
-				}
-
-			}// select
-
+		
 		}// .field
+
+		// common input styles
+		input[type="text"],
+		input[type="number"],
+		select {
+
+			width: 100%;
+			padding: 0.5rem 0.6rem;
+
+			border: 3px solid #d0d5dd;
+			border-radius: 8px;
+			outline: none;				
+			
+			// text
+			font-family: monospace;
+			font-size: 0.95rem;
+			text-align: center;
+
+			&:focus {
+				border-color: #7c8df9;
+				box-shadow: 0 0 0 3px rgba(124, 141, 249, 0.2);
+			}
+
+		}// input[type="text"], input[type="number"], select
+
 
 	}// .room-details-form 
 
