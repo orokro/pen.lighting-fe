@@ -76,9 +76,6 @@ async function submit() {
 		// get our response data, which will include the room
 		const data = await res.json();
 
-		// for debug
-		console.log('rooom, yo', data);
-
 		// Expecting { code, editCode } from your API
 		const code = data.code
 		const editCode = data.editCode

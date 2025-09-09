@@ -200,6 +200,45 @@ async function submitCode() {
 	// saveEditCode(roomCode, code)
 	// needsPrompt.value = false
 }
+
+// handle form submit update
+async function submit() {
+
+	try {
+
+		// safety check
+		const rawFormData = toRaw(unref(formData));
+		rawFormData.editCode = editCode.value;
+		const payload = JSON.stringify(rawFormData);
+		
+		// Call your API (adjust payload/endpoint to your actual schema)
+		const res = await fetch(`https://api.pen.lighting/rooms/${roomCode}`, {
+			method: 'PUT',
+			headers: { 'Content-Type': 'application/json' },
+			body: payload
+		});
+
+		// if ok
+		if (!res.ok)
+			throw new Error(`Create failed (${res.status})`);
+		
+		// get our response data, which will include the room
+		const data = await res.json();
+
+		console.log(data);
+
+		// 2) navigate to the edit page - it will recover the editCode from our store
+		await router.replace({ name: 'edit', params: { room_code: roomCode } });
+		window.location.reload();
+		
+	} catch (e) {
+
+		console.log(e);
+	} finally {
+
+	}
+}
+
 </script>
 <style lang="scss" scoped>
 
