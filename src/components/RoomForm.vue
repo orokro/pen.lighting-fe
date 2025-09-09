@@ -146,17 +146,36 @@
 					<img :src="model.penlightSprite" alt="Sprite preview" />
 				</div>
 				<div class="sprite-actions">
+
+					<!-- Visually hidden but still accessible -->
 					<input
+						id="sprite-file-input"
 						ref="fileInputRef"
 						type="file"
 						accept="image/png"
-						class="file-input"
+						class="file-input sr-only"
 						@change="handleSpritePick"
+						aria-label="Choose a PNG sprite"
 					/>
-					<button type="button" class="ghost" @click="clearSprite" :disabled="!model.penlightSprite">
+
+					<!-- Themed buttons -->
+					<button
+						type="button"
+						class="btn btn-primary"
+						@click="$refs.fileInputRef && $refs.fileInputRef.click()"
+					>
+						Choose File
+					</button>
+					<button
+						type="button"
+						class="btn btn-ghost"
+						:disabled="!model.penlightSprite"
+						@click="clearSprite"
+					>
 						Clear Image
 					</button>
 				</div>
+
 			</div>
 		</div>
 
@@ -421,6 +440,111 @@ function setMaxConcurrent(v) {
 </script>
 <style lang="scss" scoped>
 
+	/* Theme tokens (tune these to your palette) */
+	:root {
+	--pl-primary: #3dcfd9;   /* teal */
+	--pl-primary-deep: #1298a3;
+	--pl-ink: #123b4a;
+	--pl-ghost: rgba(255,255,255,0.8);
+	--pl-ghost-border: rgba(0,0,0,0.18);
+	--pl-focus: #ff6db3;     /* playful pink for focus ring */
+	}
+
+	.room-form .sprite-field .sprite-actions {
+		
+
+		/* Layout for the action row */
+		.sprite-actions {
+			display: inline-flex;
+			align-items: center;
+			gap: 10px;
+			flex-wrap: wrap;
+		}
+
+		/* Visually hide the native input but keep it accessible */
+		.sr-only {
+			position: absolute !important;
+			width: 1px; height: 1px;
+			padding: 0; margin: -1px;
+			overflow: hidden; clip: rect(0 0 0 0);
+			white-space: nowrap; border: 0;
+		}
+
+		/* Base button */
+		.btn {
+			appearance: none;
+			border: 0;
+			border-radius: 9999px;
+			padding: 10px 18px;
+			font-weight: 800;
+			letter-spacing: 0.3px;
+			cursor: pointer;
+			box-shadow: 0 6px 0 rgba(0,0,0,0.15);
+			transform: translateY(0);
+			transition: transform .08s ease, box-shadow .08s ease, filter .2s ease, opacity .2s ease;
+			line-height: 1;
+			user-select: none;
+
+			background: white !important;
+		}
+
+		/* Primary pill (Choose File) */
+		.btn-primary {
+			color: var(--pl-primary-deep);
+			background: linear-gradient(180deg, var(--pl-primary) 0%, var(--pl-primary-deep) 100%);
+			text-shadow: 0 1px 0 rgba(0,0,0,.2);
+		}
+
+		.btn-primary:hover { filter: brightness(1.05); }
+		.btn-primary:active {
+			transform: translateY(2px);
+			box-shadow: 0 4px 0 rgba(0,0,0,0.15);
+		}
+		.btn-primary:focus-visible {
+			outline: none;
+			box-shadow:
+				0 6px 0 rgba(0,0,0,0.15),
+				0 0 0 4px var(--pl-focus);
+		}
+
+		/* Ghost pill (Clear Image) */
+		.btn-ghost {
+			background: var(--pl-ghost);
+			color: var(--pl-ink);
+			border: 2px solid var(--pl-ghost-border);
+		}
+
+		.btn-ghost:hover { filter: brightness(1.03); }
+		.btn-ghost:active {
+			transform: translateY(2px);
+			box-shadow: 0 4px 0 rgba(0,0,0,0.08);
+		}
+		.btn-ghost:focus-visible {
+			outline: none;
+			box-shadow: 0 0 0 4px var(--pl-focus);
+		}
+
+		/* Disabled state */
+		.btn:disabled {
+			opacity: .55;
+			cursor: not-allowed;
+			transform: none;
+			box-shadow: 0 6px 0 rgba(0,0,0,0.08);
+		}
+	}
+
+	/* Optional polish for the preview */
+	.sprite-field .preview img {
+		display: block;
+		width: 96px; height: 96px;          /* or auto with max sizes */
+		object-fit: contain;
+		border-radius: 12px;
+		background: #f7fafb;
+		border: 2px solid #fff;
+		box-shadow: 0 2px 8px rgba(0,0,0,.15);
+		padding: 4px;
+	}
+
 	// the main outer wrapper for our form
 	.room-form {
 
@@ -649,7 +773,7 @@ function setMaxConcurrent(v) {
 
 		}// .swatches 
 
-
+		
 		// area user can pick image
 		.sprite-field {
 
@@ -680,7 +804,7 @@ function setMaxConcurrent(v) {
 				gap: 0.5rem;
 				align-items: center;
 
-				input[type="file"] {
+				/* input[type="file"] {
 
 
 					padding: 0.3rem 0.4rem;
@@ -691,7 +815,7 @@ function setMaxConcurrent(v) {
 
 					width: 100px;
 
-				}// input[type="file"]
+				}// input[type="file"] */
 
 			}// .sprite-actions
 
