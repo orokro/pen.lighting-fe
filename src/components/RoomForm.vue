@@ -122,6 +122,7 @@
 						ref="fileInputRef"
 						type="file"
 						accept="image/png"
+						class="file-input"
 						@change="handleSpritePick"
 					/>
 					<button type="button" class="ghost" @click="clearSprite" :disabled="!model.penlightSprite">
@@ -134,7 +135,7 @@
 
 		<!-- DUPLICATE USERS (toggle) -->
 		<div class="row">
-			<label class="label">Disallow Duplicate Users</label>
+			<label class="label">Duplicate Users?</label>
 			<div class="field">
 				<label class="switch">
 					<input type="checkbox" :checked="model.duplicateUsers" @change="toggleDuplicateUsers($event.target.checked)" />
@@ -145,7 +146,7 @@
 
 		<!-- DUPLICATION THRESHOLD -->
 		<div class="row">
-			<label class="label" for="dupThresh">Duplication Threshold</label>
+			<label class="label" for="dupThresh">Dupe Threshold</label>
 			<div class="field">
 				<input
 					id="dupThresh"
@@ -404,7 +405,7 @@ function setMaxConcurrent(v) {
 
 		// box & grid layout
 		display: grid;
-		grid-template-columns: 3fr 1fr;
+		grid-template-columns: 60% 40%;
 		gap: 0.75rem 1rem;
 		align-items: start;
 
@@ -584,11 +585,17 @@ function setMaxConcurrent(v) {
 				align-items: center;
 
 				input[type="file"] {
+
+
 					padding: 0.3rem 0.4rem;
 					border: 1px solid #d0d5dd;
 					border-radius: 8px;
 					background: #fff;
 					cursor: pointer;
+
+					width: 100px;
+
+
 				}// input[type="file"]
 
 			}// .sprite-actions
