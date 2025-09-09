@@ -8,34 +8,29 @@
 
 	<div class="create-room-view">
 
+		<div class="page-title" align="center">Create a Room!</div>
+
 		<!-- reusable form for both this page & edit page -->
 		<RoomForm v-model="formData" />
-		
-		<!-- super barebone form -->
-		<form v-if="false" @submit.prevent="submit">
-			<label>
-				Room Name
-				<input v-model="name" placeholder="My Stream Room" />
-			</label>
 
-			<label>
-				(Optional) Password
-				<input v-model="password" type="password" />
-			</label>
+		<!-- create row -->
+		<div class="create-row">
 
-			<button type="submit" :disabled="loading">
-				{{ loading ? 'Creating…' : 'Create' }}
+			<button 
+				class="join-button big-button"
+				@click="submit"
+			>
+				Create Room
 			</button>
-		</form>
+		</div>
 
-		<p v-if="error" style="color:crimson">{{ error }}</p>
 	</div>
 
 </template>
 <script setup>
 
 // vue stuffs
-import { reactive, ref, watch } from 'vue';
+import { reactive, toRaw, unref, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useEditCodes } from '@/composables/useEditCodes';
 const router = useRouter();
@@ -46,13 +41,7 @@ import RoomForm from '@/components/RoomForm.vue';
 // so we can store the response editCode & retrieve it later (for this room)
 const { saveEditCode } = useEditCodes();
 
-// form state
-const name = ref('');
-const password = ref('');
-const loading = ref(false);
-const error = ref('');
-
-
+// object w/ all the user customizable data for the Room form
 const formData = reactive({
 	name: 'a room',
 	password: '',
@@ -65,31 +54,30 @@ const formData = reactive({
 	maxConcurrent: 100,	
 });
 
-watch(formData, (newVal)=>{
-	// console.log('formData changed', newVal);
-});
-
-
 // handle form submit
 async function submit() {
 
-	loading.value = true;
-	error.value = '';
-
 	try {
+
+		// safety check
+		const payload = JSON.stringify(toRaw(unref(formData))) 
 
 		// Call your API (adjust payload/endpoint to your actual schema)
 		const res = await fetch('https://api.pen.lighting/rooms', {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ name: name.value, password: password.value || undefined })
+			body: payload
 		});
 
-		if (!res.ok) {
+		// if ok
+		if (!res.ok)
 			throw new Error(`Create failed (${res.status})`);
-		}
-
+		
+		// get our response data, which will include the room
 		const data = await res.json();
+
+		// for debug
+		console.log('rooom, yo', data);
 
 		// Expecting { code, editCode } from your API
 		const code = data.code
@@ -104,19 +92,24 @@ async function submit() {
 
 	} catch (e) {
 
-		error.value = e.message || 'Unknown error'
+		console.log(e);
 	} finally {
 
-		loading.value = false
 	}
 }
 
 </script>
-<style scoped>
+<style lang="scss" scoped>
 
 	.create-room-view {
 
-	}
+		// the row w/ our create button
+		.create-row {
+
+			margin-top: 40px;
+		}// .create-row
+
+	}// .create-room-view
 
 	form {
 		display: grid;

@@ -11,7 +11,7 @@ import App from './App.vue'
 import router from './router'
 
 // styles
-import './style.css'
+import './style.scss'
 import 'material-icons/iconfont/material-icons.css';
 
 // load middle-ware & kick off app

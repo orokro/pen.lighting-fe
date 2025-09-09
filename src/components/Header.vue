@@ -24,7 +24,7 @@
 					<RouterLink to="/create">Create Room</RouterLink>
 				</div>
 
-				<div class="link">
+				<div v-if="false" class="link">
 					<RouterLink to="/edit">Edit Room</RouterLink>
 				</div>
 
@@ -60,6 +60,7 @@
 		border-bottom: 6px solid white;
 		height: 262px;
 		
+		font-size: 24px;
 
 		// box for the logo
 		.logo-box {
@@ -80,8 +81,8 @@
 			.links-bar {
 				
 				position: absolute;
-				inset: auto 20px -30px 20px;
-				height: 60px;
+				inset: auto 20px -35px 20px;
+				height: 70px;
 
 				background: white;
 				border-radius: 100px;
@@ -101,7 +102,7 @@
 						font-weight: bold;
 						font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 						font-family: "Permanent Marker", sans-serif;
-						
+
 						&:hover {
 							color: hsl(260, 80%, 60%);
 						}

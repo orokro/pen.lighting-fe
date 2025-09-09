@@ -54,7 +54,7 @@
 				Rock & roll!
 			</div>
 
-			<button class="join-button">
+			<button class="join-button big-button">
 				~~ Join Room ~~
 			</button>
 		</div>
@@ -122,33 +122,7 @@ import { ref } from 'vue'
 		// the best button you've seen all day
 		.join-button {
 
-			// box
-			border-radius: 15px;
-			border: 10px solid #4787C3;
-			background: #4787C3;
-			width: 400px;
-
-			// text
-			color: white;
-			font-size: 1.2em;
-			font-family: "Permanent Marker", sans-serif;
-
-			// spacing
-			margin-top: 0px;
-			margin-bottom: 20px;
-			padding: 20px 30px;
-
-			// hover effect
-			cursor: pointer;
-			transition:
-				background 0.3s, color 0.3s,
-				border 0.3s, color 0.3s;
-
-			&:hover {
-				background: hotpink;
-				border: 10px solid hotpink;
-				color: white;
-			}
+			width: 400px;		
 
 		}// .join-button
 

@@ -8,7 +8,7 @@
 
 	<!-- main outer most wrapper -->
 	<div class="room-form">
-
+		
 		<!-- NAME -->
 		<div class="row">
 			<div class="label" for="name">
