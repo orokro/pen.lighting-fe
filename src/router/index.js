@@ -20,8 +20,8 @@ const routes = [
 	{ path: '/', name: 'home', component: HomeView },
 	{ path: '/create', name: 'create', component: CreateRoomView },
 	{ path: '/edit/:room_code', name: 'edit', component: EditRoomView, props: true },
-	{ path: '/obs/:room_code', name: 'obs', component: ObsView, props: true },
-	{ path: '/room/:room_code', name: 'room', component: RoomView, props: true },
+	{ path: '/obs/:room_code', name: 'obs', component: ObsView, props: true, meta: { noTheme: true } },
+	{ path: '/room/:room_code', name: 'room', component: RoomView, props: true, meta: { noTheme: true } },
 	{ path: '/about', name: 'about', component: AboutView },
 	{ path: '/help', name: 'help', component: HelpView },
 	{ path: '/:pathMatch(.*)*', redirect: { name: 'home' } } // catch-all

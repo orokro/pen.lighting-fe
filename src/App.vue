@@ -6,21 +6,32 @@
 -->
 <template>
 
-	<!-- our header & logo nav-bar -->
-	<Header/>
-	
-
-	<!-- 👇 This is where the current route component renders -->
-	<main class="main-content" align="center">
+	<!-- some pages (obs, room) will not require the main theme layout-->
+	<template v-if="route.meta?.noTheme">
 		<RouterView />
-	</main>
+	</template>
+	<template v-else>
 
-	<br/>
+		<!-- our header & logo nav-bar -->
+		<Header/>
+		
+		<!-- wrap our regular routes in main -->
+		<main class="main-content" align="center">
+			<RouterView />
+		</main>
+
+		<br/>
+	</template>
+
 </template>
 <script setup>
 
 // vue
-import { ref } from 'vue'
+import { ref } from 'vue';
+import { useRoute } from 'vue-router';
+
+// reactive current route object
+const route = useRoute();
 
 // components
 import Header from './components/Header.vue';
@@ -85,7 +96,7 @@ import Header from './components/Header.vue';
 		font-weight: 400;
 		font-style: normal;
 		color:rgb(3, 90, 92);
-		
+
 	}// .main-content
 
 </style>
