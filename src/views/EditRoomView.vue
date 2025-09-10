@@ -36,14 +36,14 @@
 		<div v-if="displayState === STATE.VALID_ROOM">
 
 			<!-- top section shows the useful details about room (not editable) -->
-			<div class="page-title" align="center">Room {{ roomCode }} Details:</div>
+			<div class="page-title" align="center">Room Details:</div>
 
 			<!-- show the room details form -->
 			<RoomDetailsForm :data="roomDetailsData" class="mb-4" />
 			
 			<br/><br/>
 			<!-- section below is same as creation form-->
-			<div class="page-title" align="center">Edit Room {{ roomCode }} Below:</div>
+			<div class="page-title" align="center">Edit Room Below:</div>
 
 			<!-- reusable form for both this page & edit page -->
 			<RoomForm v-model="formData" />
@@ -197,6 +197,7 @@ async function submitCode() {
 	// try to load the room data
 	getPageData();
 }
+
 
 // handle form submit update
 async function submit() {
