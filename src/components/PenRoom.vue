@@ -191,13 +191,13 @@ const tintStyle = computed(() => {
         // standard mask
 		maskImage: url,
 		maskRepeat: 'no-repeat',
-		maskSize: '100% 100%',
-		maskPosition: 'center',
+		maskSize: '256 256',
+		maskPosition: 'top left',
         // webkit mask for Safari
 		WebkitMaskImage: url,
 		WebkitMaskRepeat: 'no-repeat',
-		WebkitMaskSize: '100% 100%',
-		WebkitMaskPosition: 'center',
+		WebkitMaskSize: '256 256',
+		WebkitMaskPosition: 'top left',
 		opacity: 1
 	};
 });
@@ -442,8 +442,9 @@ onBeforeUnmount(() => {
 		   Result: only the non-transparent pixels of the sprite get tinted. */
 		.light__tint {
 			position: absolute;
-			inset: 0;
+			inset: 0px 0px 40% 0px;
 			pointer-events: none;
+			/* mix-blend-mode: multiply; */
 		}
 	}
 

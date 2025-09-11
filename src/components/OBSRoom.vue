@@ -5,7 +5,7 @@
 	- Transparent fullscreen stage for OBS Browser Source capture
 -->
 <template>
-	
+
 	<!-- Fullscreen, transparent canvas for OBS -->
 	<div ref="stageRef" class="obs-stage">
 		<!-- Room Code (corner, thick text, theme color, black outline) -->
@@ -336,12 +336,13 @@ function penTintStyle(hex) {
 		background: `#${hex}`,
 		maskImage: url,
 		maskRepeat: 'no-repeat',
-		maskSize: '100% 100%',
-		maskPosition: 'center',
+		maskSize: '100% 250%',
+		maskPosition: 'top left',
 		WebkitMaskImage: url,
 		WebkitMaskRepeat: 'no-repeat',
-		WebkitMaskSize: '100% 100%',
-		WebkitMaskPosition: 'center'
+		WebkitMaskSize: '100% 250%',
+		WebkitMaskPosition: 'top left',
+		opacity: 0.5
 	};
 }
 
@@ -382,7 +383,7 @@ onBeforeUnmount(() => {
 		font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
 		font-weight: 900; /* thick letters */
 		/* Big, responsive code */
-		font-size: clamp(24px, 6vw, 96px);
+		font-size: clamp(24px, 6vw, 48px);
 		letter-spacing: 0.06em;
 		color: var(--code-color, #ffffff);
 		/* Outline: mix of stroke + shadow for good capture in OBS */
@@ -421,8 +422,10 @@ onBeforeUnmount(() => {
 		/* Tint overlay uses the sprite as mask, so only opaque pixels are colored */
 		.pen__tint {
 			position: absolute;
-			inset: 0;
+			/* inset: 0; */
+			inset: 0px 0px 40% 0px;
 			pointer-events: none;
+			/* opacity: 0.5; */
 		}
 
 		.pen__name {
@@ -434,6 +437,7 @@ onBeforeUnmount(() => {
 			font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
 			font-weight: 800;
 			font-size: clamp(10px, 1.6vw, 22px);
+			font-size: 22px;
 			color: #fff;
 			/* Black outline for readability */
 			-webkit-text-stroke: 2px #000;
