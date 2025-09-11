@@ -59,13 +59,12 @@ const roomDetails = ref(null);
 // our hard-coded API url
 const apiUrl = 'wss://api.pen.lighting/ws';
 
+const props = defineProps({ room_code: String });
+
 onMounted(async () => {
 
 	// make our obs room state
 	obsRoomState.value = new OBSRoomState(roomCode, apiUrl);
-
-	// for debug
-	console.log('New OBSRoomState:', obsRoomState.value);
 
 	// get our room details
 	roomDetails.value = await useRoomDetails();

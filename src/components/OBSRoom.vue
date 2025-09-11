@@ -126,42 +126,35 @@ function normalizeHexMaybe(v) {
 }
 
 const themeHex = computed(() => normalizeHexMaybe(props.roomDetails?.themeColor) || 'FFFFFF');
+const hasColorOptions = computed(() => Array.isArray(props.roomDetails?.penColors) && props.roomDetails.penColors.length > 0);
+const penPalette = computed(() => (props.roomDetails?.penColors || []).map(normalizeHexMaybe).filter(Boolean));
 
-const hasColorOptions = computed(() => {
-	const arr = props.roomDetails?.penColors;
-	return Array.isArray(arr) && arr.length > 0;
-});
-
-const penPalette = computed(() => {
-	return (props.roomDetails?.penColors || [])
-		.map(normalizeHexMaybe)
-		.filter(Boolean);
-});
 
 // ---------- Pen color resolver ----------
 /**
- * Resolve user's color hex:
- * - If has palette: treat user.color as index (number or numeric string) → palette[idx % len]
- *   (If user.color is already a valid hex string, we could honor it; but spec says use index.)
- * - If no palette: use theme color
- * @param {UserLite} u
- * @returns {string} 6-char hex
+ * Resolve user color:
+ * - If user.color is a HEX string → use it directly.
+ * - Else if palette exists and user.color is numeric → use it as an index into the palette.
+ * - Else fallback to theme.
  */
 function colorForUser(u) {
-	if (!hasColorOptions.value || penPalette.value.length === 0) return themeHex.value;
 
-	const palette = penPalette.value;
-	const len = palette.length;
+	// 1) Direct HEX wins if provided
+	const asHex = normalizeHexMaybe(u?.color);
+	if (asHex)
+		return asHex;
 
-	let idx = 0;
-	if (typeof u.color === 'number' && Number.isFinite(u.color)) idx = u.color;
-	else if (typeof u.color === 'string' && u.color.trim() !== '' && !u.color.startsWith('#')) {
-		// try parse numeric string
-		const parsed = parseInt(u.color, 10);
-		if (Number.isFinite(parsed)) idx = parsed;
+	// 2) Use palette index (number or numeric string)
+	if (hasColorOptions.value && penPalette.value.length > 0) {
+		const len = penPalette.value.length;
+		const idx = Number.parseInt(u?.color, 10);
+		if (Number.isFinite(idx)) return penPalette.value[((idx % len) + len) % len];
+		// fallback to first palette color if index missing
+		return penPalette.value[0];
 	}
 
-	return palette[((idx % len) + len) % len]; // safe modulo
+	// 3) Theme fallback
+	return themeHex.value;
 }
 
 // ---------- Show Code placement ----------

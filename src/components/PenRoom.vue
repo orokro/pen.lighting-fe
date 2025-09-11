@@ -21,9 +21,9 @@
 			<label class="sr-only" for="colorSelect">Penlight Color</label>
 			<select id="colorSelect" class="color-select" @change="onColorChange">
 				<option
-					v-for="hex in roomDetails.penColors"
+					v-for="hex, index in roomDetails.penColors"
 					:key="hex"
-					:value="hex"
+					:value="index"
 					:selected="isSelectedColor(hex)"
 				>
 					{{ '#' + hex.toUpperCase() }}
@@ -111,17 +111,26 @@ const spriteSrc = computed(() => {
  * Then honor user selection afterwards.
  */
  const resolvedHex = computed(() => {
+
 	if (hasColorOptions.value) {
+
 		// userRef or first option
-		const refHex = normalizeHexMaybe(props.userRoomState?.colorRef?.value);
-		const options = (props.roomDetails.penColors || []).map(normalizeHexMaybe).filter(Boolean);
+		// const refHex = normalizeHexMaybe(props.userRoomState?.colorRef?.value);
+		// const options = (props.roomDetails.penColors || []).map(normalizeHexMaybe).filter(Boolean);
+
+		return props.roomDetails.penColors[props.userRoomState?.colorRef?.value];
+
 		// If current ref is one of the options, use it; else use the first option
-		if (refHex && options.includes(refHex)) return refHex;
+		if (refHex && options.includes(refHex))
+			return refHex;
+		
 		return options[0] || 'FFFFFF';
+
 	} else {
 		// no options → always theme color
 		return normalizeHexMaybe(props.roomDetails?.themeColor) || 'FFFFFF';
 	}
+
 });
 
 const hasColorOptions = computed(() => {
@@ -198,7 +207,8 @@ const tintStyle = computed(() => {
 		WebkitMaskRepeat: 'no-repeat',
 		WebkitMaskSize: '256 256',
 		WebkitMaskPosition: 'top left',
-		opacity: 1
+		opacity: 0.7,
+		// filter: `drop-shadow(0 0 10px #${resolvedHex.value})`
 	};
 });
 
@@ -444,7 +454,7 @@ onBeforeUnmount(() => {
 			position: absolute;
 			inset: 0px 0px 40% 0px;
 			pointer-events: none;
-			/* mix-blend-mode: multiply; */
+			/* mix-blend-mode: ; */
 		}
 	}
 

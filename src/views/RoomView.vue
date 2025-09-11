@@ -50,6 +50,8 @@ const apiUrl = 'wss://api.pen.lighting/ws';
 // our user room state
 const userRoomState = shallowRef(null);
 
+const props = defineProps({ room_code: String });
+
 onMounted(async () => {
 
 	// make our obs room state
@@ -59,9 +61,6 @@ onMounted(async () => {
 		sessionDetails.value.roomPwd,
 		apiUrl,		
 	);
-
-	// for debug
-	console.log('New UserRoomState:', userRoomState.value);
 
 	// get our room details
 	roomDetails.value = await useRoomDetails();
