@@ -93,9 +93,6 @@ export class OBSRoomState {
 
 				// Publish a cloned array for the template
 				this.usersListRef.value = [...this._users];
-
-				// for debug
-				console.log('Users update', this._users);
 			}
 		});
 

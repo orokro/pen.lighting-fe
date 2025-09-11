@@ -7,12 +7,16 @@
 -->
 <template>
 
-	<template v-if="obsRoomState==null">
-		
+	<template v-if="obsRoomState==null || roomDetails==null">	
 		Connecting...
-		
 	</template>
 	<template v-else>
+		<OBSRoom 
+			:roomDetails="roomDetails" 
+			:users="obsRoomState.usersListRef.value"
+		/>
+	</template>
+	<template v-if="false">
 
 		Connected!
 
@@ -33,6 +37,9 @@
 // vue
 import { ref, onMounted, onBeforeUnmount, shallowRef } from 'vue'
 import { useRoute, useRouter } from 'vue-router';
+
+// components
+import OBSRoom from '../components/OBSRoom.vue';
 
 // our app
 import { useRoomDetails } from '../composables/useRoomDetails.js';

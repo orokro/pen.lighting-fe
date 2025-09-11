@@ -1,3 +1,11 @@
+<!--
+	PenRoom.vue
+	-----------
+
+	- Renders the interactive penlight stage
+	- Stores normalized coords (0..1) in userRoomState.{xRef,yRef}
+	- Renders to screen space using stage size
+-->
 <template>
 	<div
 		ref="stageRef"
