@@ -7,14 +7,63 @@
 -->
 <template>
 
-	<div>
+	<template v-if="obsRoomState==null">
 		
-	</div>
+		Connecting...
+		
+	</template>
+	<template v-else>
+
+		Connected!
+		<br/>
+		<template v-for="(user, index) in obsRoomState.usersListRef" :key="index">
+
+			<pre>
+				{{ JSON.stringify(user, null, 2) }}
+			</pre>
+
+		</template>
+
+	</template>
+
 </template>
 <script setup>
 
 // vue
-import { ref } from 'vue'
+import { ref, onMounted, onBeforeUnmount, shallowRef } from 'vue'
+import { useRoute, useRouter } from 'vue-router';
+
+// our class
+import OBSRoomState from '../js/OBSRoomState.js'
+
+// when we mount we'll make a new OBSRoomState to connect to BE
+const obsRoomState = shallowRef(null);
+
+// fet the room code from the URL
+const route = useRoute();
+const router = useRouter();
+const roomCode = route.params.room_code;
+
+// our hard-coded API url
+const apiUrl = 'ws://api.pen.lighting';
+
+onMounted(() => {
+
+	// make our obs room state
+	obsRoomState.value = new OBSRoomState(roomCode, apiUrl);
+
+	// for debug
+	console.log('New OBSRoomState:', obsRoomState.value);
+});
+
+onBeforeUnmount(() => {
+
+	// disconnect from our obs room state
+	if (obsRoomState.value) {
+		obsRoomState.value.destroy();
+		obsRoomState.value = null;
+	}
+});
 
 </script>
 <style lang="scss">

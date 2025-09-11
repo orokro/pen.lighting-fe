@@ -76,7 +76,7 @@ import { useEditCodes } from '@/composables/useEditCodes';
 import RoomForm from '@/components/RoomForm.vue';
 import RoomDetailsForm from '@/components/RoomDetailsForm.vue';
 
-// fet the room code from the URL
+// get the room code from the URL
 const route = useRoute();
 const router = useRouter();
 const roomCode = route.params.room_code;
