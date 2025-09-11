@@ -17,7 +17,14 @@
 		@contextmenu.prevent
 	>
 		<!-- Colors (top-left) -->
-		<div class="ui ui-left" v-if="hasColorOptions">
+		<div 
+			class="ui ui-left" 
+			v-if="hasColorOptions"
+			@touchstart.stop
+			@touchmove.stop
+			@touchend.stop
+			@click.stop
+		>
 			<label class="sr-only" for="colorSelect">Penlight Color</label>
 			<select id="colorSelect" class="color-select" @change="onColorChange">
 				<option
@@ -32,7 +39,13 @@
 		</div>
 
 		<!-- Auto Wave (top-right) -->
-		<div class="ui ui-right">
+		<div 
+			class="ui ui-right"
+			@touchstart.stop
+			@touchmove.stop
+			@touchend.stop
+			@click.stop
+		>
 			<label class="checkbox">
 				<input type="checkbox" :checked="autoWaveActive" @change="toggleAutoWave" />
 				<span>Auto Wave</span>
