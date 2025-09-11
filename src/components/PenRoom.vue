@@ -97,29 +97,48 @@ const spriteSrc = computed(() => {
 
 // ---------- Color handling ----------
 /**
- * Final hex (no '#'):
- * 1) user selection (colorRef) if present
- * 2) fallback to room themeColor
+ * Startup rule:
+ * - If penColors exist, default to the first color in that array.
+ * - Else default to themeColor.
+ * Then honor user selection afterwards.
  */
-const resolvedHex = computed(() => {
-	let v = props.userRoomState && props.userRoomState.colorRef
-		? props.userRoomState.colorRef.value
-		: null;
-	if (v == null || v === '') v = props.roomDetails.themeColor || 'FFFFFF';
-	if (typeof v === 'number') v = (v >>> 0).toString(16).padStart(6, '0');
-	if (typeof v === 'string' && v.startsWith('#')) v = v.slice(1);
-	if (typeof v === 'string' && (v.length === 3 || v.length === 6)) return v.toUpperCase();
-	return (props.roomDetails.themeColor || 'FFFFFF').toUpperCase();
+ const resolvedHex = computed(() => {
+	if (hasColorOptions.value) {
+		// userRef or first option
+		const refHex = normalizeHexMaybe(props.userRoomState?.colorRef?.value);
+		const options = (props.roomDetails.penColors || []).map(normalizeHexMaybe).filter(Boolean);
+		// If current ref is one of the options, use it; else use the first option
+		if (refHex && options.includes(refHex)) return refHex;
+		return options[0] || 'FFFFFF';
+	} else {
+		// no options → always theme color
+		return normalizeHexMaybe(props.roomDetails?.themeColor) || 'FFFFFF';
+	}
 });
 
 const hasColorOptions = computed(() => {
-	const arr = props.roomDetails && props.roomDetails.penColors;
+	const arr = props.roomDetails?.penColors;
 	return Array.isArray(arr) && arr.length > 0;
 });
 
+/**
+ * Normalize to 6-char uppercase hex (no '#'), or null if unusable.
+ */
+ function normalizeHexMaybe(v) {
+	if (v == null || v === '') return null;
+	if (typeof v === 'number') v = (v >>> 0).toString(16);
+	if (typeof v === 'string') {
+		v = v.trim();
+		if (v.startsWith('#')) v = v.slice(1);
+		v = v.toUpperCase();
+		if (v.length === 3) v = v.split('').map(c => c + c).join('');
+		if (v.length === 6) return v;
+	}
+	return null;
+}
+
 function isSelectedColor(hex) {
-	const cur = resolvedHex.value.toUpperCase();
-	return cur === hex.toUpperCase().replace(/^#/, '');
+	return resolvedHex.value === normalizeHexMaybe(hex);
 }
 
 function onColorChange(e) {
