@@ -43,13 +43,13 @@ const { saveEditCode } = useEditCodes();
 
 // object w/ all the user customizable data for the Room form
 const formData = reactive({
-	name: 'a room',
+	name: '',
 	password: '',
 	themeColor: '00ABAE',
 	showCode: 'bottom-left',
 	penColors: [],
 	penlightSprite: null,
-	duplicateUsers: true,
+	duplicateUsers: false,
 	duplicationThreshold: 10,
 	maxConcurrent: 100,	
 });
