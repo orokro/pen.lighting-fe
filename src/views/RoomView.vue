@@ -6,18 +6,24 @@
 	for the url /room/:room_code
 -->
 <template>
-
-	<div>
-		<pre>{{ JSON.stringify(sessionDetails, null, 2) }}</pre>
-		<pre>{{ JSON.stringify(roomDetails, null, 2) }}</pre>
-	</div>
-
+	<template v-if="userRoomState==null || roomDetails==null">
+		Connecting...
+	</template>
+	<template v-else>
+		<PenRoom 
+			:roomDetails="roomDetails" 
+			:userRoomState="userRoomState" 
+		/>
+	</template>
 </template>
 <script setup>
 
 // vue
 import { ref, onMounted, onBeforeUnmount, shallowRef } from 'vue'
 import { useRoute, useRouter } from 'vue-router';
+
+// components
+import PenRoom from '@/components/PenRoom.vue';
 
 // our app
 import { useRoomDetails } from '../composables/useRoomDetails.js';
@@ -49,7 +55,7 @@ onMounted(async () => {
 	// make our obs room state
 	userRoomState.value = new UserRoomState(
 		roomCode, 
-		sessionDetails.value.userName,
+		sessionDetails.value.username,
 		sessionDetails.value.roomPwd,
 		apiUrl,		
 	);
