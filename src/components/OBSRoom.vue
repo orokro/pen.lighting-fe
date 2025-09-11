@@ -403,6 +403,8 @@ onBeforeUnmount(() => {
 		will-change: transform, opacity;
 		pointer-events: none; /* display-only */
 
+		transition: left 0.1s linear, top 0.1s linear, transform 0.1s linear, opacity 0.5s ease;
+
 		.pen__img {
 			display: block;
 			width: 100%;

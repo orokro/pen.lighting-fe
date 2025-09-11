@@ -23,7 +23,7 @@ export class UserRoomState {
 	 * @param {string} wsUrl - Optional WebSocket URL to connect to (defaults to current host)
 	 * @param {number} debounceMs - Optional debounce time in milliseconds for sending updates (default 5ms)
 	 */
-	constructor(roomCode, nickname, password, wsUrl, debounceMs = 5 ) {
+	constructor(roomCode, nickname, password, wsUrl, debounceMs = 0 ) {
 
 		// Save params
 		this.roomCode = roomCode;
@@ -42,7 +42,7 @@ export class UserRoomState {
 		this._socket = null;
 		this._closedManually = false;
 		this._sendTimer = null;
-		this._debounceMs = Math.max(0, debounceMs | 0);
+		this._debounceMs = Math.max(0, debounceMs | 5);
 
 		this.connect();
 		this._wireWatches();

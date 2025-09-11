@@ -403,6 +403,14 @@ onBeforeUnmount(() => {
             outline: none;
 
             &:focus { border-color: #666; }
+
+			font-size: 22px;
+			font-weight: bolder;
+			background: #DDD;
+			border-radius: 6px;
+			padding: 6px 10px;
+			color: black;
+			border: 3px solid gray;
         }
 
         .checkbox {
@@ -413,6 +421,14 @@ onBeforeUnmount(() => {
             font-size: 14px;
             input { cursor: pointer; }
             span { cursor: pointer; }
+
+			font-size: 22px;
+			font-weight: bolder;
+			background: #DDD;
+			border-radius: 6px;
+			padding: 6px 10px;
+			color: black;
+			border: 3px solid gray;
         }
 	}
 
