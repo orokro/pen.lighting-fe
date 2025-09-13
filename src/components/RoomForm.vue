@@ -240,11 +240,24 @@ import { z } from 'zod'
  * We only mutate props.modelValue when a field is valid.
  */
 const props = defineProps({
-	modelValue: { type: Object, required: true },
-	mode: { type: String, default: 'edit' }, // cosmetic only
+
+	// the model
+	modelValue: { 
+		type: Object, 
+		required: true 
+	},
+
+	// are we in "edit" or "create" mode?
+	mode: { 
+		type: String, 
+		default: 'edit' 
+	},
 })
+
+// define vents for updating the model
 const emit = defineEmits(['update:modelValue'])
 
+// computed model proxy
 const model = computed({
 	get() { return props.modelValue },
 	set(v) { emit('update:modelValue', v) },
@@ -793,6 +806,7 @@ function setMaxConcurrent(v) {
 					object-fit: contain;
 					
 					background: repeating-conic-gradient(#fff 0% 25%, #f3f4f6 0% 50%) 50% / 16px 16px;
+
 				}// img
 
 			}// .preview
@@ -804,18 +818,6 @@ function setMaxConcurrent(v) {
 				gap: 0.5rem;
 				align-items: center;
 
-				/* input[type="file"] {
-
-
-					padding: 0.3rem 0.4rem;
-					border: 1px solid #d0d5dd;
-					border-radius: 8px;
-					background: #fff;
-					cursor: pointer;
-
-					width: 100px;
-
-				}// input[type="file"] */
 
 			}// .sprite-actions
 

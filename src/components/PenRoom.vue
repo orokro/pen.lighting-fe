@@ -59,7 +59,7 @@
 
 		<!-- Penlight sprite + color tint via CSS mask (tints only opaque pixels) -->
 		<div 
-			class="light" 
+			class="pen" 
 			:style="lightStyle" 
 			role="img" 
 			aria-label="Penlight sprite"
@@ -230,10 +230,15 @@ const lightStyle = computed(() => {
 	const tx = pxX - spriteSize / 2;
 	const ty = pxY - spriteSize / 2;
 
-	return {
-		transform: `translate(${tx}px, ${ty}px) rotate(${theta}deg)`,
+	const style = {
+		left: `${tx}px`,
+		top: `${ty}px`,
+		transform: `rotate(${theta}deg)`,
 		'--beam-color': `#${resolvedHex.value}`
 	};
+
+	console.log(style)
+	return style;
 });
 
 
@@ -306,6 +311,7 @@ function updateKinematics(nowMs) {
 
 	// Smoothly interpolate (time-based smoothing)
 	const prev = Number(props.userRoomState.thetaRef.value || 0);
+	
 	// Exponential-like smoothing with a fixed factor per update
 	const alpha = clamp(dt * 6, 0, 0.65); // ~tau≈0.16s, max 0.35 per frame
 	const next = lerp(prev, target, alpha);
@@ -621,12 +627,12 @@ onBeforeUnmount(() => {
 		}// .hint
 
 		// pen light settings
-		.light {
+		.pen {
 
 			// fixed positioning based on coordinates
 			position: absolute;
-			top: 0;
-			left: 0;
+			/* top: 0;
+			left: 0; */
 
 			// always full size image on this page
 			// but OBS page will scale light
@@ -637,6 +643,11 @@ onBeforeUnmount(() => {
 			// slightly below center
 			transform-origin: 50% 60%; 
 			will-change: transform;
+
+			// smooth movement/rotation
+			transition: 
+				transform 0.1s linear,
+				opacity 0.5s ease;
 
 			// the image of the penlight
 			.light-img {
@@ -658,7 +669,7 @@ onBeforeUnmount(() => {
 
 			}// .light-tint
 
-		}// .light
+		}// .pen
 
 	}// .room-stage
 
