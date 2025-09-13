@@ -63,7 +63,6 @@
 
 	</div>
 
-
 </template>
 <script setup>
 
@@ -222,8 +221,6 @@ async function submit() {
 		
 		// get our response data, which will include the room
 		const data = await res.json();
-
-		console.log(data);
 
 		// 2) navigate to the edit page - it will recover the editCode from our store
 		await router.replace({ name: 'edit', params: { room_code: roomCode } });

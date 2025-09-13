@@ -21,12 +21,11 @@
 			draggable="false"
 		/>
 
-		<!-- Tint layer: colors only opaque pixels using mask -->
-		<div 
-			class="pen-tint"
-			:style="penTintStyle"
-		>
-		</div>
+		<!-- glowing rectangles unless we have a masked-image present -->
+		<template v-if="!imageMaskLoaded">
+			<div class="glow"/>
+			<div class="glow g2"/>
+		</template>
 
 		<!-- Nickname label -->
 		<div class="pen-name">{{ nickName }}</div>
@@ -87,6 +86,9 @@ const props = defineProps({
 	},
 });
 
+// true if we should use the masking image for the glow
+const imageMaskLoaded = ref(false);
+
 
 /**
  * The sprite image to use for penlights
@@ -137,30 +139,6 @@ const penStyle = computed(() => {
 	};
 });
 
-
-/**
- * CSS style for the tint overlay of a penlight
- * 
- * This uses the sprite as a mask, so only opaque pixels are colored.
- */
-const penTintStyle = computed(()=>{
-
-	const hex = props.color;
-	const url = `url("${spriteSrc.value}")`;
-	return {
-		background: `#${hex}`,
-		maskImage: url,
-		maskRepeat: 'no-repeat',
-		maskSize: '100% 250%',
-		maskPosition: 'top left',
-		WebkitMaskImage: url,
-		WebkitMaskRepeat: 'no-repeat',
-		WebkitMaskSize: '100% 250%',
-		WebkitMaskPosition: 'top left',
-		opacity: 0.5
-	};
-});
-
 </script>
 <style lang="scss" scoped>
 
@@ -189,7 +167,7 @@ const penTintStyle = computed(()=>{
 				top 0.1s linear,
 				transform 0.1s linear,
 				opacity 0.5s ease;
-				
+
 		}// &.use-motion-smoothing
 
 		// base sprite image
@@ -202,14 +180,6 @@ const penTintStyle = computed(()=>{
 			-webkit-user-drag: none;
 
 		}// .pen-img
-
-		// Tint overlay uses the sprite as mask, so only opaque pixels are colored
-		.pen-tint {
-			position: absolute;
-			inset: 0px 0px 40% 0px;
-			pointer-events: none;
-
-		}// .pen-tint
 
 		// Nickname label below the sprite
 		.pen-name {
@@ -241,6 +211,31 @@ const penTintStyle = computed(()=>{
 
 		}// .pen-name
 
+		// glow bar if we're not using image masking
+		.glow {
+
+			// fixed position over the pen
+			position: absolute;
+			inset: 0px 40% 38% 40%;
+
+			// nice n round on top
+			border-radius: 20px 20px 0 0;
+			// disable
+			pointer-events: none;
+
+			// glowing rectangle
+			background: var(--beam-color, #00abae);
+			filter: blur(20px);
+			
+			mix-blend-mode: screen;
+
+			&.g2 {
+				filter: blur(3px);
+				mix-blend-mode: screen;
+				
+			}
+
+		}// .glow
 	}// .pen
 
 </style>
