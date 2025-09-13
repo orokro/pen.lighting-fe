@@ -54,6 +54,12 @@ const props = defineProps({ room_code: String });
 
 onMounted(async () => {
 
+	// if we don't have session details, kick them back to join page
+	if (!sessionDetails.value) {
+		router.push({ name: 'home', query: { room_code: roomCode } });
+		return;
+	}
+
 	// make our obs room state
 	userRoomState.value = new UserRoomState(
 		roomCode, 

@@ -138,6 +138,18 @@ const nickInput = ref(null)
 const router = useRouter()
 const { saveRoomSession } = useRoomSession()
 
+// if we have a roomCode param, prefill it
+const route = useRoute()
+
+onMounted(() => {
+	if (route?.query?.room_code) {
+		console.log('room code', route.query.room_code)
+		roomCode.value = String(route.query.room_code || '').trim().slice(0, 6);
+	}
+
+	onRoomCodeInput();
+});
+
 // ------------------------------
 // net request cancellation
 // ------------------------------
@@ -146,6 +158,7 @@ let roomFetchSeq = 0
 
 let pwFetchCtrl = null
 let pwFetchSeq = 0
+
 
 // ------------------------------
 // computed-ish rule for Join row
@@ -156,6 +169,7 @@ watch([showNickRow, nickname], () => {
 	canJoin.value = ok
 	showJoinRow.value = ok
 }, { immediate: true })
+
 
 // ------------------------------
 // input handlers
