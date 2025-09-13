@@ -25,23 +25,37 @@
 		</div>
 
 		<!-- Rendered penlights (possibly limited by maxConcurrent, plus duplicates) -->
-		<div
+		<template v-if="false">
+			<div
+				v-for="pl in displayedPenlights"
+				:key="pl.key"
+				class="pen"
+				:style="penStyle(pl)"
+				:aria-label="pl.nickname || 'penlight'"
+				role="img"
+			>
+				<!-- Base sprite (kept visible for alpha/soft edges) -->
+				<img class="pen-img" :src="spriteSrc" alt="" draggable="false" />
+
+				<!-- Tint layer: colors only opaque pixels using mask -->
+				<div class="pen-tint" :style="penTintStyle(pl.hex)"></div>
+
+				<!-- Nickname label -->
+				<div class="pen-name">{{ pl.nickname }}</div>
+			</div>
+		</template>
+
+		<PenLight
 			v-for="pl in displayedPenlights"
 			:key="pl.key"
-			class="pen"
-			:style="penStyle(pl)"
-			:aria-label="pl.nickname || 'penlight'"
-			role="img"
-		>
-			<!-- Base sprite (kept visible for alpha/soft edges) -->
-			<img class="pen-img" :src="spriteSrc" alt="" draggable="false" />
+			:roomDetails="roomDetails"
+			:color="pl.hex"
+			:nickName="pl.nickname"
+			:opacity="pl.opacity"
+			:penTransform="pl"
+			:penSize="spriteSize"
 
-			<!-- Tint layer: colors only opaque pixels using mask -->
-			<div class="pen-tint" :style="penTintStyle(pl.hex)"></div>
-
-			<!-- Nickname label -->
-			<div class="pen-name">{{ pl.nickname }}</div>
-		</div>
+		/>
 
 	</div>
 
@@ -50,6 +64,9 @@
 
 // vue
 import { computed, onMounted, onBeforeUnmount, ref, watch, shallowRef } from 'vue';
+
+// components
+import PenLight from '../components/PenLight.vue';
 
 // define some props
 const props = defineProps({
@@ -187,15 +204,7 @@ function colorForUser(u) {
 
 	// 2) Use palette index (number or numeric string)
 	if (hasColorOptions.value && penPalette.value.length > 0) {
-
-		const len = penPalette.value.length;
-		const idx = Number.parseInt(u?.color, 10);
-		
-		if (Number.isFinite(idx)) return
-			penPalette.value[((idx % len) + len) % len];
-
-		// fallback to first palette color if index missing
-		return penPalette.value[0];
+		return penPalette.value[u.color];
 	}
 
 	// 3) Theme fallback
@@ -429,12 +438,20 @@ const displayedPenlights = computed(() => {
 		baseUsers.map((u, i) => {
 
 			// Normalize/clamp incoming values just in case
-			const nx = clamp01(Number(u.x));
-			const ny = clamp01(Number(u.y));
+			const nx = clamp01(Number(u.x)) * stageW.value;
+			const ny = clamp01(Number(u.y)) * stageH.value;
 			const theta = Number(u.theta || 0);
 			const hex = colorForUser(u);
 			const nickname = String(u.nickname || '');
-			return { x: nx, y: ny, theta, hex, nickname, opacity: 1, key: `b-${i}` };
+			return { 
+				x: nx, 
+				y: ny, 
+				theta, 
+				hex, 
+				nickname, 
+				opacity: 1, 
+				key: `b-${i}`
+			};
 		})
 	);
 
