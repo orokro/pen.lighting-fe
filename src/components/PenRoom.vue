@@ -57,20 +57,14 @@
 		<!-- Center hint -->
 		<div class="hint">Drag your finger/mouse around!</div>
 
-		<!-- Penlight sprite + color tint via CSS mask (tints only opaque pixels) -->
-		<div 
-			class="pen" 
-			:style="lightStyle" 
-			role="img" 
-			aria-label="Penlight sprite"
-		>
-
-			<!-- actual image of penlight -->
-			<img class="light-img" :src="spriteSrc" alt="" draggable="false" />
-
-			<!-- The tint layer uses the sprite as a mask so only the penlight gets colored -->
-			<div class="light-tint" :style="tintStyle" aria-hidden="true"></div>
-		</div>
+		<!-- The PenLight component -->
+		<PenLight
+			:roomDetails="roomDetails"
+			:color="resolvedHex"
+			:opacity="1"
+			:penTransform="penTransform"
+			:nickName="props.userRoomState.nickname || 'Guest'"
+		/>
 	</div>
 
 </template>
@@ -78,6 +72,9 @@
 
 // vue
 import { computed, onMounted, onBeforeUnmount, ref } from 'vue';
+
+// components
+import PenLight from './PenLight.vue';
 
 // define props
 const props = defineProps({
@@ -100,7 +97,6 @@ const props = defineProps({
 const stageRef = ref(null);
 const stageW = ref(1);
 const stageH = ref(1);
-const spriteSize = 256;
 
 
 /**
@@ -213,59 +209,14 @@ function onColorChange(e) {
 // ---------- Render styles ----------
 
 /**
- * Place the 256x256 sprite so its center sits at (pxX, pxY),
- * where pxX/pxY are derived from normalized refs and stage size.
- * Theta is controlled by our kinematics (acceleration-based rocking).
+ * Computed pen transform (x, y in pixels; theta in degrees).
  */
-const lightStyle = computed(() => {
+const penTransform = computed(()=> {
 
-	// normalized → pixels
-	const xNorm = Number(props.userRoomState.xRef.value ?? 0.5);
-	const yNorm = Number(props.userRoomState.yRef.value ?? 0.5);
-	const theta = Number(props.userRoomState.thetaRef.value ?? 0);
-
-	const pxX = xNorm * stageW.value;
-	const pxY = yNorm * stageH.value;
-
-	const tx = pxX - spriteSize / 2;
-	const ty = pxY - spriteSize / 2;
-
-	const style = {
-		left: `${tx}px`,
-		top: `${ty}px`,
-		transform: `rotate(${theta}deg)`,
-		'--beam-color': `#${resolvedHex.value}`
-	};
-
-	console.log(style)
-	return style;
-});
-
-
-/**
- * Tint layer uses the sprite image as a CSS mask to color only its opaque pixels.
- * Works in modern browsers with both standard and -webkit- prefixed properties.
- */
-const tintStyle = computed(() => {
-
-	const url = `url("${spriteSrc.value}")`;
 	return {
-        // color
-		background: `#${resolvedHex.value}`,
-
-        // standard mask
-		maskImage: url,
-		maskRepeat: 'no-repeat',
-		maskSize: '256 256',
-		maskPosition: 'top left',
-
-        // webkit mask for Safari
-		WebkitMaskImage: url,
-		WebkitMaskRepeat: 'no-repeat',
-		WebkitMaskSize: '256 256',
-		WebkitMaskPosition: 'top left',
-		opacity: 0.7,
-		// filter: `drop-shadow(0 0 10px #${resolvedHex.value})`
+		x: (props.userRoomState.xRef.value ?? 0.5) * stageW.value ,
+		y: (props.userRoomState.yRef.value ?? 0.5) * stageH.value ,
+		theta: props.userRoomState.thetaRef.value,
 	};
 });
 
@@ -311,7 +262,7 @@ function updateKinematics(nowMs) {
 
 	// Smoothly interpolate (time-based smoothing)
 	const prev = Number(props.userRoomState.thetaRef.value || 0);
-	
+
 	// Exponential-like smoothing with a fixed factor per update
 	const alpha = clamp(dt * 6, 0, 0.65); // ~tau≈0.16s, max 0.35 per frame
 	const next = lerp(prev, target, alpha);
@@ -625,51 +576,6 @@ onBeforeUnmount(() => {
 			text-align: center;
 			
 		}// .hint
-
-		// pen light settings
-		.pen {
-
-			// fixed positioning based on coordinates
-			position: absolute;
-			/* top: 0;
-			left: 0; */
-
-			// always full size image on this page
-			// but OBS page will scale light
-			width: 256px;
-			height: 256px;
-			z-index: 2;
-
-			// slightly below center
-			transform-origin: 50% 60%; 
-			will-change: transform;
-
-			// smooth movement/rotation
-			transition: 
-				transform 0.1s linear,
-				opacity 0.5s ease;
-
-			// the image of the penlight
-			.light-img {
-				display: block;
-				width: 100%;
-				height: 100%;
-				pointer-events: none;
-				user-drag: none;
-				-webkit-user-drag: none;
-
-			}// .light-img
-
-			/* The tint layer is colored and uses the sprite image as a mask.
-			Result: only the non-transparent pixels of the sprite get tinted. */
-			.light-tint {
-				position: absolute;
-				inset: 0px 0px 40% 0px;
-				pointer-events: none;
-
-			}// .light-tint
-
-		}// .pen
 
 	}// .room-stage
 

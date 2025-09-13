@@ -67,13 +67,15 @@ const props = defineProps({
 	// pen size (its as square so only one edge needed)
 	penSize: {
 		type: Number,
-		required: true,
+		default: 256,
+		required: false,
 	},
 
 	// user name for pen
 	nickName: {
 		type: String,
-		required: true,
+		default: 'anonymous',
+		required: false,
 	},
 });
 
@@ -117,9 +119,11 @@ const penStyle = computed(() => {
 
 	// return computed style
 	return {
+		left: `${pxX}px`,
+		top: `${pxY}px`,
 		width: `${size}px`,
 		height: `${size}px`,
-		transform: `translate(${tx}px, ${ty}px) rotate(${theta}deg)`,
+		transform: `translate(-50%, -50%) rotate(${theta}deg)`,
 		opacity: props.opacity,
 		'--beam-color': `#${props.color}`
 	};
@@ -157,8 +161,9 @@ const penTintStyle = computed(()=>{
 
 		// always absolutely positioned from the coordinates we get from the server
 		position: absolute;
-		top: 0;
-		left: 0;
+
+		// don't interact w/ mouse
+		pointer-events: none;
 
 		// slightly below center like input component
 		transform-origin: 50% 60%; 
@@ -166,8 +171,6 @@ const penTintStyle = computed(()=>{
 
 		// smooth movement/rotation
 		transition: 
-			left 0.1s linear,
-			top 0.1s linear,
 			transform 0.1s linear,
 			opacity 0.5s ease;
 
