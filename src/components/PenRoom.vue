@@ -56,6 +56,14 @@
 		<!-- Center hint -->
 		<div class="hint">Drag your finger/mouse around!</div>
 
+		<!-- Center hint -->
+		<div 
+			v-if="roomDetails.name!='' && roomDetails.name!=null"
+			class="title"
+		>
+			Welcome to "{{roomDetails.name}}" Penlight Audience!
+		</div>
+
 		<!-- The PenLight component -->
 		<PenLight
 			:roomDetails="roomDetails"
@@ -549,7 +557,7 @@ onBeforeUnmount(() => {
 		}// .ui
 
 		// the string in the middle of the page prompting user to move finger/mouse around
-		.hint {
+		.hint, .title {
 
 			// fixed in center of page
 			position: absolute;
@@ -571,6 +579,12 @@ onBeforeUnmount(() => {
 			text-align: center;
 			
 		}// .hint
+
+		// just title settings
+		.title {
+			top: auto;
+			bottom: 10px;
+		}// title
 
 	}// .room-stage
 
