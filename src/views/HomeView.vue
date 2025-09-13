@@ -60,6 +60,7 @@
 					type="text"
 					placeholder="Nickname"
 					class="room-code-input big-input"
+					maxlength="16"
 					@input="onNickInput"
 				/>
 			</div>

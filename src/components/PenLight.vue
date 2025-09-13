@@ -47,7 +47,7 @@
 		<div 
 			class="pen-name"
 			:style="{ transform: `translateX(-50%) rotate(${-penTransform.theta}deg)` }"
-		>{{ nickName }}</div>
+		>{{ nickNameClean }}</div>
 	</div>
 
 </template>
@@ -58,6 +58,7 @@ import { ref, onMounted, onBeforeUnmount, shallowRef, computed } from 'vue'
 
 // our app
 import { usePenMasking } from '../composables/usePenMasking';
+import { censorUsername } from '../js/censorUsername';
 
 // props
 const props = defineProps({
@@ -108,6 +109,9 @@ const props = defineProps({
 	},
 });
 
+// cleaned username
+const nickNameClean = computed(() => censorUsername(props.nickName));
+
 // true if we should use the masking image for the glow
 const imageMaskLoaded = ref(false);
 
@@ -126,6 +130,7 @@ const spriteSrc = computed(() => {
 	const b64 = props.roomDetails?.penlightSprite;
 	return b64 ? `${b64}` : '/img/default_light.png';
 });
+
 
 
 /**
@@ -271,7 +276,7 @@ onMounted(async ()=>{
 				inset: 0px 40% 38% 40%;
 
 				border: 2px solid red;
-				
+
 				// nice n round on top
 				border-radius: 20px 20px 0 0;
 
