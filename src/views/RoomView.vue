@@ -6,14 +6,21 @@
 	for the url /room/:room_code
 -->
 <template>
+
+	<!-- show connecting message until we're ready-->
 	<template v-if="userRoomState==null || roomDetails==null">
+
 		Connecting...
+
 	</template>
 	<template v-else>
+
+		<!-- pretty much all the magic happens in this component -->
 		<PenRoom 
 			:roomDetails="roomDetails" 
 			:userRoomState="userRoomState" 
 		/>
+
 	</template>
 </template>
 <script setup>
@@ -52,6 +59,9 @@ const userRoomState = shallowRef(null);
 
 const props = defineProps({ room_code: String });
 
+/**
+ * When the component is mounted, create our UserRoomState to connect to the backend
+ */
 onMounted(async () => {
 
 	// if we don't have session details, kick them back to join page
@@ -72,6 +82,10 @@ onMounted(async () => {
 	roomDetails.value = await useRoomDetails();
 });
 
+
+/**
+ * When the component is unmounted, disconnect from our UserRoomState
+ */
 onBeforeUnmount(() => {
 
 	// disconnect from our obs room state

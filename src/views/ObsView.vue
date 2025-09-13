@@ -7,28 +7,19 @@
 -->
 <template>
 
+	<!-- show connecting message until we're read-->
 	<template v-if="obsRoomState==null || roomDetails==null">	
+
 		Connecting...
+
 	</template>
 	<template v-else>
+
+		<!-- pretty much all the magic happens in this component -->
 		<OBSRoom 
 			:roomDetails="roomDetails" 
 			:users="obsRoomState.usersListRef.value"
 		/>
-	</template>
-	<template v-if="false">
-
-		Connected!
-
-		<pre>{{ JSON.stringify(roomDetails, null, 2) }}</pre>
-		
-		<br/>
-		<template v-for="(user, index) in obsRoomState.usersListRef.value" :key="index">
-
-			<pre>{{ JSON.stringify(user, null, 2) }}</pre>
-			
-		</template>
-
 	</template>
 
 </template>
@@ -59,8 +50,17 @@ const roomDetails = ref(null);
 // our hard-coded API url
 const apiUrl = 'wss://api.pen.lighting/ws';
 
-const props = defineProps({ room_code: String });
+// define props
+const props = defineProps({ 
 
+	// the room code to join
+	room_code: String
+});
+
+
+/**
+ * When the component is mounted, create our OBSRoomState to connect to the backend
+ */
 onMounted(async () => {
 
 	// make our obs room state
@@ -70,6 +70,10 @@ onMounted(async () => {
 	roomDetails.value = await useRoomDetails();
 });
 
+
+/**
+ * When the component is unmounted, disconnect from our OBSRoomState
+ */
 onBeforeUnmount(() => {
 
 	// disconnect from our obs room state
@@ -92,6 +96,7 @@ onBeforeUnmount(() => {
 		&::before {
 			content: '';
 			background: none !important;
+			
 		}// &::before
 
 	}// body
