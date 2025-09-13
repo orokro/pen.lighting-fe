@@ -16,16 +16,32 @@
 		<!-- Base sprite (kept visible for alpha/soft edges) -->
 		<img 
 			class="pen-img"
-			:src="spriteSrc"
+			:src="imageMaskLoaded ? imageDetails.penImage : spriteSrc"
 			alt=""
 			draggable="false"
 		/>
 
 		<!-- glowing rectangles unless we have a masked-image present -->
-		<template v-if="!imageMaskLoaded">
-			<div class="glow"/>
-			<div class="glow g2"/>
-		</template>
+		<div class="glow-wrapper blur20">
+			<div 
+				class="glow" 
+				:class="{'mask-mode': imageMaskLoaded}"
+				:style="imageMaskLoaded ? {
+					'-webkit-mask-image': `url(${imageDetails.penMask})`,
+					'mask-image': `url(${imageDetails.penMask})`,				
+				} : {}"
+			/>
+		</div>
+		<div class="glow-wrapper blur3">
+			<div 
+				class="glow"
+				:class="{'mask-mode': imageMaskLoaded}"
+				:style="imageMaskLoaded ? {
+					'-webkit-mask-image': `url(${imageDetails.penMask})`,
+					'mask-image': `url(${imageDetails.penMask})`,				
+				} : {}"
+			/>
+		</div>
 
 		<!-- Nickname label -->
 		<div class="pen-name">{{ nickName }}</div>
@@ -36,6 +52,9 @@
 
 // vue
 import { ref, onMounted, onBeforeUnmount, shallowRef, computed } from 'vue'
+
+// our app
+import { usePenMasking } from '../composables/usePenMasking';
 
 // props
 const props = defineProps({
@@ -89,6 +108,8 @@ const props = defineProps({
 // true if we should use the masking image for the glow
 const imageMaskLoaded = ref(false);
 
+// pen masking composable
+const { getPenImages } = usePenMasking();
 
 /**
  * The sprite image to use for penlights
@@ -137,6 +158,19 @@ const penStyle = computed(() => {
 		opacity: props.opacity,
 		'--beam-color': `#${props.color}`
 	};
+});
+
+const imageDetails = shallowRef(null);
+
+// compute the image mask URL if we have one
+onMounted(async ()=>{
+
+	const roomCode = props.roomDetails.code;
+	imageDetails.value = await getPenImages(roomCode, spriteSrc.value);
+
+	imageMaskLoaded.value = imageDetails.value?.maskingMode || false;
+
+	console.log(imageDetails.value);
 });
 
 </script>
@@ -211,31 +245,74 @@ const penStyle = computed(() => {
 
 		}// .pen-name
 
-		// glow bar if we're not using image masking
-		.glow {
+		// wrapper to blur the glows
+		.glow-wrapper {
 
-			// fixed position over the pen
+			// fill over entire image
 			position: absolute;
-			inset: 0px 40% 38% 40%;
+			inset: 0;
 
-			// nice n round on top
-			border-radius: 20px 20px 0 0;
-			// disable
-			pointer-events: none;
+			// for debug
+			/* border: 1px solid red; */
 
-			// glowing rectangle
-			background: var(--beam-color, #00abae);
-			filter: blur(20px);
-			
-			mix-blend-mode: screen;
+			// glow bar if we're not using image masking
+			.glow {
 
-			&.g2 {
-				filter: blur(3px);
-				mix-blend-mode: screen;
+				// fixed position over the pen
+				position: absolute;
+				inset: 0px 40% 38% 40%;
+
+				// nice n round on top
+				border-radius: 20px 20px 0 0;
+
+				// disable
+				pointer-events: none;
+
+				// glowing rectangle
+				background: var(--beam-color, #00abae);
 				
-			}
+				// default blend mode
+				filter: blur(20px);
+				mix-blend-mode: screen;
 
-		}// .glow
+				// second glow layer
+				&.g2 {
+					filter: blur(3px);
+					mix-blend-mode: screen;
+				}
+
+				&.mask-mode {
+
+					inset: 0px !important; // cover entire pen
+					border-radius: 0px; 
+					filter: blur(0px);
+					mix-blend-mode: normal;
+
+					// when in mask mode, cover the entire pen
+					-webkit-mask-size: contain;
+					-webkit-mask-repeat: no-repeat;
+					-webkit-mask-position: center bottom;
+					mask-size: contain;
+					mask-repeat: no-repeat;
+					mask-position: center bottom;
+
+				}// &.mask-mode
+
+			}// .glow
+
+
+			&.blur20 {
+				filter: blur(20px);
+				mix-blend-mode: screen;
+			}
+			&.blur3 {
+				filter: blur(5px);
+				mix-blend-mode: multiply;
+
+				/* display: none; // disable the inner glow for now */
+			}
+		}// .glow-wrapper
+
 	}// .pen
 
 </style>
