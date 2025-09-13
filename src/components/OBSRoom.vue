@@ -17,6 +17,12 @@
 			:style="codeStyle"
 		>
 			{{ roomDetails.code }}
+			<div 
+				class="code-url"
+				:style="penLightingURLStyle"
+			>
+				https://pen.lighting
+			</div>
 		</div>
 
 		<!-- Rendered penlights (possibly limited by maxConcurrent, plus duplicates) -->
@@ -217,6 +223,11 @@ const codeCornerClass = computed(() => {
 		default: return 'code-hidden';
 	}
 });
+
+
+const penLightingURLStyle = {
+	
+};
 
 
 /**
@@ -558,7 +569,6 @@ onBeforeUnmount(() => {
 
 			// disable just in case
 			pointer-events: none;
-
 			// text settings
 			font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
 			font-weight: 900;
@@ -575,6 +585,24 @@ onBeforeUnmount(() => {
 				1px -1px 0 #000,
 				-1px 1px 0 #000;
 		
+			// the URL
+			.code-url {
+
+				// dark pill
+				background: rgba(0, 0, 0, 0.8);
+				border-radius: 50px;
+				padding: 3px 8px;
+
+				// text settings
+				text-shadow: none;
+				text-align: center;
+				color: white !important;
+				-webkit-text-stroke: 0px !important;
+				font-size: 15px;
+				font-weight: 600;				
+				
+			}// .code-url 
+
 		}// .room-code
 
 
@@ -624,6 +652,7 @@ onBeforeUnmount(() => {
 
 			}// .pen-tint
 
+			
 			// Nickname label below the sprite
 			.pen-name {
 
