@@ -34,6 +34,7 @@
 			:opacity="pl.opacity"
 			:penTransform="pl"
 			:penSize="spriteSize"
+			:smoothMotion="true"
 		/>
 
 	</div>

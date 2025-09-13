@@ -9,6 +9,7 @@
 	<!-- outermost wrapper -->
 	<div
 		class="pen"
+		:class="{ 'use-motion-smoothing': smoothMotion }"
 		:style="penStyle"
 		role="img"
 	>
@@ -75,6 +76,13 @@ const props = defineProps({
 	nickName: {
 		type: String,
 		default: 'anonymous',
+		required: false,
+	},
+
+	// true if we should smooth/xy positions
+	smoothMotion: {
+		type: Boolean,
+		default: false,
 		required: false,
 	},
 });
@@ -173,6 +181,16 @@ const penTintStyle = computed(()=>{
 		transition: 
 			transform 0.1s linear,
 			opacity 0.5s ease;
+
+		// smooth x & y with a class toggle
+		&.use-motion-smoothing {
+			transition: 
+				left 0.1s linear,
+				top 0.1s linear,
+				transform 0.1s linear,
+				opacity 0.5s ease;
+				
+		}// &.use-motion-smoothing
 
 		// base sprite image
 		.pen-img {
