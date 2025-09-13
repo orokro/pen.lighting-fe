@@ -111,7 +111,7 @@ const spriteSrc = computed(() => {
 
 	// if will be a base64 data URL if provided
 	const b64 = props.roomDetails?.penlightSprite;
-	return b64 ? `data:image/png;base64,${b64}` : '/img/default_light.png';
+	return b64 ? `${b64}` : '/img/default_light.png';
 });
 
 
@@ -506,7 +506,7 @@ function penTintStyle(hex) {
 	Init on mount
 */
 onMounted(() => {
-	
+
 	// measure our stage size
 	updateStageSize();
 
@@ -549,7 +549,7 @@ onBeforeUnmount(() => {
 		background: transparent;
 
 		// clear input events, though this shouldn't really matter for OBS
-		pointer-events: none; 
+		/* pointer-events: none;  */
 		overflow: hidden;
 		user-select: none;
 		touch-action: none;
@@ -563,7 +563,9 @@ onBeforeUnmount(() => {
 
 			// disable just in case
 			pointer-events: none;
+
 			// text settings
+			text-align: center;
 			font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
 			font-weight: 900;
 			font-size: clamp(24px, 6vw, 48px);
@@ -617,7 +619,7 @@ onBeforeUnmount(() => {
 			// slightly below center like input component
 			transform-origin: 50% 60%; 
 			will-change: transform, opacity;
-			pointer-events: none;
+			/* pointer-events: none; */
 
 			// smooth movement/rotation
 			transition: 
@@ -665,7 +667,6 @@ onBeforeUnmount(() => {
 				font-size: clamp(10px, 1.6vw, 22px);
 				font-size: 22px;
 				color: #fff;
-
 
 				// Black outline for readability
 				-webkit-text-stroke: 2px #000;

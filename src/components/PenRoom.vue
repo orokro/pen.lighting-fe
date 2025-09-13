@@ -113,7 +113,7 @@ function updateStageSize() {
 // ---------- Sprite source ----------
 const spriteSrc = computed(() => {
 	const b64 = props.roomDetails && props.roomDetails.penlightSprite;
-	return b64 ? `data:image/png;base64,${b64}` : '/img/default_light.png';
+	return b64 ? `${b64}` : '/img/default_light.png';
 });
 
 // ---------- Color handling ----------
