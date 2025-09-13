@@ -25,7 +25,7 @@
 	}
 */
 
-// bue
+// vue
 import { ref } from 'vue';
 
 export function usePenMasking() {
@@ -39,7 +39,7 @@ export function usePenMasking() {
 	 * Public: clear all cached entries (optional helper)
 	 */
 	function clearPenMaskCache() {
-		_penMaskCache.clear();
+        _penMaskCache.clear();
 	}
 
 
@@ -97,18 +97,72 @@ export function usePenMasking() {
 
 
 	/**
+	 * Internal: normalize a hex color string, fallback to #DDDDDD if invalid.
+	 * Accepts "#RRGGBB", "RRGGBB", "#RGB", or "RGB".
+	 * @param {string} hex
+	 * @returns {string} normalized "#RRGGBB"
+	 */
+	function _normalizeHex(hex) {
+		if (!hex) return '#DDDDDD';
+		let s = String(hex).trim();
+		if (s[0] !== '#') s = '#' + s;
+		if (s.length === 4) {
+			// #RGB -> #RRGGBB
+			s = '#' + s[1] + s[1] + s[2] + s[2] + s[3] + s[3];
+		}
+		const ok = /^#([0-9a-fA-F]{6})$/.test(s);
+		return ok ? s.toUpperCase() : '#DDDDDD';
+	}
+
+
+	/**
+	 * Internal: "#RRGGBB" -> { r,g,b }
+	 * @param {string} hex
+	 */
+	function _hexToRgb(hex) {
+		const n = parseInt(hex.slice(1), 16);
+		return {
+			r: (n >> 16) & 255,
+			g: (n >> 8) & 255,
+			b: n & 255
+		};
+	}
+
+
+	/**
+	 * Internal: blend two colors by weight w (0..1). Keeps alpha external.
+	 * @param {number} r1
+	 * @param {number} g1
+	 * @param {number} b1
+	 * @param {{r:number,g:number,b:number}} repl
+	 * @param {number} w - 0..1 (1 = full replacementColor)
+	 * @returns {{r:number,g:number,b:number}}
+	 */
+	function _blendTowardsReplacement(r1, g1, b1, repl, w) {
+		const inv = 1 - w;
+		return {
+			r: Math.round(r1 * inv + repl.r * w),
+			g: Math.round(g1 * inv + repl.g * w),
+			b: Math.round(b1 * inv + repl.b * w)
+		};
+	}
+
+
+	/**
 	 * Internal: process the ImageData for green mask extraction and sprite editing.
-	 * - Generates a white mask (preserving alpha) wherever a pixel is exactly #00FF00.
-	 * - Replaces the same pixels in the original with #DDDDDD (alpha preserved).
+	 * - Generates a white mask (alpha scales with closeness to pure green within tolerance).
+	 * - Replaces "green-ish" pixels in the original by blending toward replacementColor with the same weight.
 	 *
 	 * @param {ImageData} imageData - Original 256x256 sprite pixels
+	 * @param {number} tolerance - 0..~441 (Euclidean radius in RGB); 0 = exact green only
+	 * @param {{r:number,g:number,b:number}} replacementRGB - parsed replacement color
 	 * @returns {{
 	 *   foundGreen: boolean,
 	 *   editedImageData: ImageData,
 	 *   maskImageData: ImageData | null
 	 * }}
 	 */
-	function _processImageData(imageData) {
+	function _processImageData(imageData, tolerance, replacementRGB) {
 
 		const { width, height, data } = imageData;
 		let foundGreen = false;
@@ -116,6 +170,10 @@ export function usePenMasking() {
 		// Prepare mask ImageData (same dimensions), initially fully transparent
 		const maskImageData = new ImageData(width, height);
 		const mask = maskImageData.data;
+
+		// Constants for pure green target
+		const gr = 0, gg = 255, gb = 0;
+		const tol = Math.max(0, Number.isFinite(tolerance) ? tolerance : 0);
 
 		// Iterate pixels: RGBA per pixel
 		for (let i = 0; i < data.length; i += 4) {
@@ -125,22 +183,45 @@ export function usePenMasking() {
 			const b = data[i + 2];
 			const a = data[i + 3];
 
-			// Exact "perfect green" check: #00FF00 with some opacity
-			const isPerfectGreen = (r === 0 && g === 255 && b === 0 && a > 0);
-			if (isPerfectGreen) {
+			// Ignore fully transparent pixels
+			if (a === 0) continue;
+
+			// Distance to pure green in RGB space
+			const dr = r - gr;
+			const dg = g - gg;
+			const db = b - gb;
+			const dist = Math.sqrt(dr * dr + dg * dg + db * db);
+
+			let w = 0;
+
+			if (tol === 0) {
+				// Exact "perfect green" check: #00FF00 with some opacity
+				if (r === 0 && g === 255 && b === 0) {
+					w = 1;
+				}
+			} else {
+				// Within tolerance? Weight decreases linearly with distance
+				if (dist <= tol) {
+					w = 1 - (dist / tol); // 1 at center, 0 at radius
+				}
+			}
+
+			if (w > 0) {
 				foundGreen = true;
 
-				// Write white into mask, preserving original alpha
-				mask[i] = 255;     // R
-				mask[i + 1] = 255; // G
-				mask[i + 2] = 255; // B
-				mask[i + 3] = a;   // A (preserve)
+				// ---- MASK: white with alpha scaled by closeness and source alpha
+				const outA = Math.round(a * w);
+				mask[i] = 255;          // R
+				mask[i + 1] = 255;      // G
+				mask[i + 2] = 255;      // B
+				mask[i + 3] = outA;     // A (scaled)
 
-				// Replace this pixel in the original with #DDDDDD, alpha preserved
-				data[i] = 221;
-				data[i + 1] = 221;
-				data[i + 2] = 221;
-				// data[i + 3] = a; // unchanged
+				// ---- SPRITE EDIT: blend current pixel toward replacement color with same weight
+				const blended = _blendTowardsReplacement(r, g, b, replacementRGB, w);
+				data[i] = blended.r;
+				data[i + 1] = blended.g;
+				data[i + 2] = blended.b;
+				// data[i + 3] = a; // keep original alpha
 			}
 		}// next i
 
@@ -166,32 +247,35 @@ export function usePenMasking() {
 		const cctx = c.getContext('2d');
 		cctx.putImageData(imageData, 0, 0);
 		return c.toDataURL('image/png');
-
 	}
 
 
 	/**
-	 * Core API: getPenImages(roomCode, spriteSrc)
-	 * Loads the image, scans for green, optionally builds mask & edited sprite,
-	 * returns base64 PNGs, and caches by `${roomCode}::${spriteSrc}`.
+	 * Core API: getPenImages(roomCode, spriteSrc, tolerance = 0, replacementColor = '#DDDDDD')
+	 * Loads the image, scans for green (with tolerance), optionally builds mask & edited sprite,
+	 * returns base64 PNGs, and caches by `${roomCode}::${spriteSrc}::${tolerance}::${replacementColor}`.
 	 *
 	 * @param {string} roomCode - Unique room identifier to scope caching
 	 * @param {string} spriteSrc - URL or data URI for the pen sprite
+	 * @param {number} [tolerance=0] - Euclidean distance in RGB (0 = exact only). Typical useful range: 10..80
+	 * @param {string} [replacementColor='#DDDDDD'] - Hex CSS color for replacement (e.g., '#DDDDDD' or 'DDDDDD')
 	 * @returns {Promise<{ maskingMode: boolean, penImage: string, penMask: string | null }>}
 	 */
-	function getPenImages(roomCode, spriteSrc) {
+	function getPenImages(roomCode, spriteSrc, tolerance = 0, replacementColor = '#DDDDDD') {
 
 		if (!roomCode || !spriteSrc) {
 			return Promise.reject(new Error('getPenImages(roomCode, spriteSrc) requires both parameters.'));
 		}
 
-		const cacheKey = `${roomCode}::${spriteSrc}`;
+		const replHex = _normalizeHex(replacementColor);
+		const cacheKey = `${roomCode}::${spriteSrc}::${tolerance}::${replHex}`;
 		if (_penMaskCache.has(cacheKey)) {
 			return _penMaskCache.get(cacheKey);
 		}
 
 		// Store the in-flight Promise in cache to avoid duplicate work
 		const task = (async () => {
+
 			// 1) Load image
 			const img = await _loadImage(spriteSrc);
 
@@ -201,8 +285,9 @@ export function usePenMasking() {
 			// 3) Read pixels
 			const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
 
-			// 4) Process pixels for green extraction and sprite edit
-			const { foundGreen, editedImageData, maskImageData } = _processImageData(imgData);
+			// 4) Process pixels for green extraction and sprite edit (with tolerance & replacement)
+			const replacementRGB = _hexToRgb(replHex);
+			const { foundGreen, editedImageData, maskImageData } = _processImageData(imgData, tolerance, replacementRGB);
 
 			// 5) Commit edits back to base canvas
 			ctx.putImageData(editedImageData, 0, 0);

@@ -166,7 +166,7 @@ const imageDetails = shallowRef(null);
 onMounted(async ()=>{
 
 	const roomCode = props.roomDetails.code;
-	imageDetails.value = await getPenImages(roomCode, spriteSrc.value);
+	imageDetails.value = await getPenImages(roomCode, spriteSrc.value, 255);
 
 	imageMaskLoaded.value = imageDetails.value?.maskingMode || false;
 
@@ -281,6 +281,7 @@ onMounted(async ()=>{
 					mix-blend-mode: screen;
 				}
 
+				// if we're in masking mode we'll have a mask image
 				&.mask-mode {
 
 					inset: 0px !important; // cover entire pen
@@ -295,12 +296,12 @@ onMounted(async ()=>{
 					mask-size: contain;
 					mask-repeat: no-repeat;
 					mask-position: center bottom;
-
+					mask-mode: alpha;
 				}// &.mask-mode
 
 			}// .glow
 
-
+			// two layers blur
 			&.blur20 {
 				filter: blur(20px);
 				mix-blend-mode: screen;
@@ -308,9 +309,8 @@ onMounted(async ()=>{
 			&.blur3 {
 				filter: blur(5px);
 				mix-blend-mode: multiply;
-
-				/* display: none; // disable the inner glow for now */
 			}
+
 		}// .glow-wrapper
 
 	}// .pen
