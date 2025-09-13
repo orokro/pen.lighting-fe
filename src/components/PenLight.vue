@@ -270,6 +270,8 @@ onMounted(async ()=>{
 				position: absolute;
 				inset: 0px 40% 38% 40%;
 
+				border: 2px solid red;
+				
 				// nice n round on top
 				border-radius: 20px 20px 0 0;
 

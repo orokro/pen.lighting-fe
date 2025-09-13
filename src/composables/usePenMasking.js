@@ -194,6 +194,10 @@ export function usePenMasking() {
 
 			let w = 0;
 
+			if (r === 0 && g === 255 && b === 0) {
+				foundGreen = true;
+			}
+
 			if (tol === 0) {
 				// Exact "perfect green" check: #00FF00 with some opacity
 				if (r === 0 && g === 255 && b === 0) {
@@ -207,7 +211,7 @@ export function usePenMasking() {
 			}
 
 			if (w > 0) {
-				foundGreen = true;
+				
 
 				// ---- MASK: white with alpha scaled by closeness and source alpha
 				const outA = Math.round(a * w);

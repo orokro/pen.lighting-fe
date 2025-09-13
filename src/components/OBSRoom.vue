@@ -258,8 +258,8 @@ function makeDuplicates(baseUsers) {
 			const off = offsetFor(i, d);
 			out.push({
 				...u,
-				x: clamp01(u.x + off.dx),
-				y: clamp01(u.y + off.dy),
+				x: (u.x) + (off.dx * stageW.value),
+				y: (u.y) + (off.dy * stageH.value),
 				opacity: 0.8,
 				key: `u-${i}-d${d}`
 			});
