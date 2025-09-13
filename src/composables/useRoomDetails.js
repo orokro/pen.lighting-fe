@@ -15,63 +15,86 @@ const roomPromiseCache = new Map();
 /**
  * Fetch room details for the current route's :room_code.
  *
- * @param {boolean} useCache - if true, reuse cached result for the same code.
- *                             default false (always fetch fresh).
+ * @param {boolean} useCache - if true, reuse cached result for the same code. default false (always fetch fresh).
  * @param {object} options - optional { signal?: AbortSignal, timeoutMs?: number }
  */
 export async function useRoomDetails(useCache = false, options = {}) {
 	
-	const route = useRoute()
+	// get the current router route & extract the room_code param
+	const route = useRoute();
 	const raw = route.params.room_code
 	const code =
 		Array.isArray(raw) ? raw[0] :
 			typeof raw === 'string' ? raw :
 				undefined
 
-	if (!code) return null
+	// if no code, nothing to do
+	if (!code) 
+		return null
 
+	// fetch room details from the API
 	const { signal, timeoutMs = 8000 } = options
 	const cacheKey = code
 
+	// if using cache and we have a cached promise, return it
 	if (useCache && roomPromiseCache.has(cacheKey)) {
 		return roomPromiseCache.get(cacheKey)
 	}
 
+	// set up abort controller with timeout
 	const controller = new AbortController()
 	const timeoutId = setTimeout(() => controller.abort(), timeoutMs)
 
+	// if an external signal is provided, tie it to our controller
 	if (signal) {
 		if (signal.aborted) controller.abort()
 		else signal.addEventListener('abort', () => controller.abort(), { once: true })
 	}
 
+	// fetch the room details
 	const promise = (async () => {
 		try {
 			const res = await fetch(
 				`https://api.pen.lighting/rooms/${encodeURIComponent(code)}`,
 				{ headers: { Accept: 'application/json' }, signal: controller.signal }
 			)
-			if (!res.ok) return null
-			return await res.json()
+			if (!res.ok) 
+					return null;
+
+			return await res.json();
+
 		} catch {
-			return null
+			return null;
+
 		} finally {
-			clearTimeout(timeoutId)
+			clearTimeout(timeoutId);
 		}
 	})()
 
+	// if using cache, store the promise
 	if (useCache) {
 		roomPromiseCache.set(cacheKey, promise)
 	}
 
-	const result = await promise
+	// wait for the result
+	const result = await promise;
 	if (result === null && useCache) {
-		roomPromiseCache.delete(cacheKey)
+		roomPromiseCache.delete(cacheKey);
 	}
-	return result
+	return result;
 }
 
+
+/**
+ * clear the room details cache
+ * 
+ * @param {string} roomCode - Optional room code to clear from cache. If omitted, clears entire cache.
+ */
 export function clearRoomDetailsCache(roomCode) {
-	if (roomCode) roomPromiseCache.delete(roomCode)
-	else roomPromiseCache.clear()
+
+	if (roomCode)
+		roomPromiseCache.delete(roomCode);
+
+	else
+		roomPromiseCache.clear();
 }

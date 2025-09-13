@@ -19,7 +19,6 @@
 			{{ roomDetails.code }}
 			<div 
 				class="code-url"
-				:style="penLightingURLStyle"
 			>
 				https://pen.lighting
 			</div>
@@ -223,11 +222,6 @@ const codeCornerClass = computed(() => {
 		default: return 'code-hidden';
 	}
 });
-
-
-const penLightingURLStyle = {
-	
-};
 
 
 /**
@@ -512,7 +506,7 @@ function penTintStyle(hex) {
 	Init on mount
 */
 onMounted(() => {
-
+	
 	// measure our stage size
 	updateStageSize();
 

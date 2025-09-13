@@ -2,8 +2,7 @@
 	useRoomSession.js
 	-----------------
 
-		A composable to manage the room and username a user has picked
-
+	A composable to manage the room and username a user has picked
 */
 export function useRoomSession() {
 
