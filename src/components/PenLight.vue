@@ -44,7 +44,10 @@
 		</div>
 
 		<!-- Nickname label -->
-		<div class="pen-name">{{ nickName }}</div>
+		<div 
+			class="pen-name"
+			:style="{ transform: `translateX(-50%) rotate(${-penTransform.theta}deg)` }"
+		>{{ nickName }}</div>
 	</div>
 
 </template>
@@ -225,8 +228,12 @@ onMounted(async ()=>{
 			// force center on bottom
 			left: 50%;
 			top: calc(100% - 8px);
-			transform: translateX(-50%);
+			/* transform: translateX(-50%); */
 
+			transition: 
+			transform 0.1s linear,
+			opacity 0.5s ease;
+			
 			// text settings
 			white-space: nowrap;
 			font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
