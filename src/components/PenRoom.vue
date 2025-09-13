@@ -18,7 +18,6 @@
 		@touchend="onTouchEnd"
 		@contextmenu.prevent
 	>
-
 		<!-- on the top left, a drop box for picking colors if the room allows it -->
 		<div 
 			class="ui ui-left" 
@@ -114,15 +113,6 @@ function updateStageSize() {
 	stageW.value = Math.max(1, r.width);
 	stageH.value = Math.max(1, r.height);
 }
-
-
-/**
- * Compute if we should use a custom base64 png if we have one, or fallback to default.
- */
-const spriteSrc = computed(() => {
-	const b64 = props.roomDetails && props.roomDetails.penlightSprite;
-	return b64 ? `${b64}` : '/img/default_light.png';
-});
 
 
 /**
@@ -245,6 +235,7 @@ let lastV = 0;    // norm/sec
  * @param {number} nowMs performance.now()
  */
 function updateKinematics(nowMs) {
+
 	const now = nowMs / 1000; // seconds
 	if (lastTime === 0) lastTime = now;
 
@@ -312,6 +303,7 @@ function setBaseFromClientXY(clientX, clientY) {
 	updateKinematics(performance.now());
 }
 
+
 /**
  * Handle mouse move event.
  */
@@ -334,6 +326,7 @@ function onTouchStart(e) {
 	setBaseFromClientXY(t.clientX, t.clientY);
 }
 
+
 /**
  * Handle touch move event.
  */
@@ -348,6 +341,7 @@ function onTouchMove(e) {
 	
 	setBaseFromClientXY(t.clientX, t.clientY);
 }
+
 
 /**
  * Handle touch end event.
@@ -374,6 +368,7 @@ function toggleAutoWave(e) {
 	else 
 		stopWave();
 }
+
 
 /**
  * Function to start auto-wave if user enables it.

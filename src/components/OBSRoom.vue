@@ -25,26 +25,6 @@
 		</div>
 
 		<!-- Rendered penlights (possibly limited by maxConcurrent, plus duplicates) -->
-		<template v-if="false">
-			<div
-				v-for="pl in displayedPenlights"
-				:key="pl.key"
-				class="pen"
-				:style="penStyle(pl)"
-				:aria-label="pl.nickname || 'penlight'"
-				role="img"
-			>
-				<!-- Base sprite (kept visible for alpha/soft edges) -->
-				<img class="pen-img" :src="spriteSrc" alt="" draggable="false" />
-
-				<!-- Tint layer: colors only opaque pixels using mask -->
-				<div class="pen-tint" :style="penTintStyle(pl.hex)"></div>
-
-				<!-- Nickname label -->
-				<div class="pen-name">{{ pl.nickname }}</div>
-			</div>
-		</template>
-
 		<PenLight
 			v-for="pl in displayedPenlights"
 			:key="pl.key"
@@ -54,7 +34,6 @@
 			:opacity="pl.opacity"
 			:penTransform="pl"
 			:penSize="spriteSize"
-
 		/>
 
 	</div>
@@ -116,19 +95,6 @@ function updateStageSize() {
  */
 const spriteSize = computed(() => {
 	return Math.min(256, Math.floor(stageH.value / 4));
-});
-
-
-/**
- * The sprite image to use for penlights
- * 
- * If none is provided in the room details, we'll load the default penlight
- */
-const spriteSrc = computed(() => {
-
-	// if will be a base64 data URL if provided
-	const b64 = props.roomDetails?.penlightSprite;
-	return b64 ? `${b64}` : '/img/default_light.png';
 });
 
 
@@ -459,66 +425,6 @@ const displayedPenlights = computed(() => {
 });
 
 
-/**
- * CSS style for a penlight element
- * 
- * This includes:
- * - size
- * - position (x,y)
- * - rotation (theta)
- * - opacity
- * - color (via CSS variable for the tint layer)
- * 
- * @param {Object} pl - Penlight object with x, y, theta, hex, opacity.
- * @returns {Object} - CSS style object.
- */
-function penStyle(pl) {
-
-	// dimensions & position
-	const size = spriteSize.value;
-	const pxX = pl.x * stageW.value;
-	const pxY = pl.y * stageH.value;
-
-	// center the sprite at pxX/pxY
-	const tx = pxX - size / 2;
-	const ty = pxY - size / 2;
-
-	// return computed style
-	return {
-		width: `${size}px`,
-		height: `${size}px`,
-		transform: `translate(${tx}px, ${ty}px) rotate(${pl.theta}deg)`,
-		opacity: pl.opacity,
-		'--beam-color': `#${pl.hex}`
-	};
-}
-
-
-/**
- * CSS style for the tint overlay of a penlight
- * 
- * This uses the sprite as a mask, so only opaque pixels are colored.
- * 
- * @param {string} hex - 6-digit uppercase HEX color string.
- * @returns {Object} - CSS style object for the tint layer.
- */
-function penTintStyle(hex) {
-	const url = `url("${spriteSrc.value}")`;
-	return {
-		background: `#${hex}`,
-		maskImage: url,
-		maskRepeat: 'no-repeat',
-		maskSize: '100% 250%',
-		maskPosition: 'top left',
-		WebkitMaskImage: url,
-		WebkitMaskRepeat: 'no-repeat',
-		WebkitMaskSize: '100% 250%',
-		WebkitMaskPosition: 'top left',
-		opacity: 0.5
-	};
-}
-
-
 /*
 	Init on mount
 */
@@ -624,79 +530,6 @@ onBeforeUnmount(() => {
 		.code-top-right { top: 12px; right: 12px; text-align: right; }
 		.code-bottom-left { bottom: 12px; left: 12px; }
 		.code-bottom-right { bottom: 12px; right: 12px; text-align: right; }
-
-		// styles for a pen object
-		.pen {
-
-			// always absolutely positioned from the coordinates we get from the server
-			position: absolute;
-			top: 0;
-			left: 0;
-
-			// slightly below center like input component
-			transform-origin: 50% 60%; 
-			will-change: transform, opacity;
-			/* pointer-events: none; */
-
-			// smooth movement/rotation
-			transition: 
-				left 0.1s linear,
-				top 0.1s linear,
-				transform 0.1s linear,
-				opacity 0.5s ease;
-
-			// base sprite image
-			.pen-img {
-				display: block;
-				width: 100%;
-				height: 100%;
-				pointer-events: none;
-				user-drag: none;
-				-webkit-user-drag: none;
-
-			}// .pen-img
-
-
-			// Tint overlay uses the sprite as mask, so only opaque pixels are colored
-			.pen-tint {
-				position: absolute;
-				inset: 0px 0px 40% 0px;
-				pointer-events: none;
-
-			}// .pen-tint
-
-			
-			// Nickname label below the sprite
-			.pen-name {
-
-				// fixed
-				position: absolute;
-
-				// force center on bottom
-				left: 50%;
-				top: calc(100% - 8px);
-				transform: translateX(-50%);
-
-				// text settings
-				white-space: nowrap;
-				font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
-				font-weight: 800;
-				font-size: clamp(10px, 1.6vw, 22px);
-				font-size: 22px;
-				color: #fff;
-
-				// Black outline for readability
-				-webkit-text-stroke: 2px #000;
-				text-shadow:
-					0 0 0 #000,
-					1px 1px 0 #000,
-					-1px -1px 0 #000,
-					1px -1px 0 #000,
-					-1px 1px 0 #000;
-
-			}// .pen-name
-
-		}// .pen
 
 	}// .obs-stage
 
