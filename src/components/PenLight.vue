@@ -163,7 +163,7 @@ const penStyle = computed(() => {
 		top: `${pxY}px`,
 		width: `${size}px`,
 		height: `${size}px`,
-		transform: `translate(-50%, -50%) rotate(${theta}deg)`,
+		transform: `translate(-50%, -80%) rotate(${theta}deg)`,
 		opacity: props.opacity,
 		'--beam-color': `#${props.color}`
 	};
