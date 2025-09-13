@@ -158,7 +158,7 @@ const penStyle = computed(() => {
 		top: `${pxY}px`,
 		width: `${size}px`,
 		height: `${size}px`,
-		transform: `translate(-50%, -50%) rotate(${theta}deg)`,
+		transform: `translate(-50%, -80%) rotate(${theta}deg)`,
 		opacity: props.opacity,
 		'--beam-color': `#${props.color}`
 	};
@@ -190,7 +190,7 @@ onMounted(async ()=>{
 		pointer-events: none;
 
 		// slightly below center like input component
-		transform-origin: 50% 60%; 
+		transform-origin: 50% 80%; 
 		will-change: transform, opacity;
 
 		// smooth movement/rotation
@@ -233,7 +233,7 @@ onMounted(async ()=>{
 			transition: 
 			transform 0.1s linear,
 			opacity 0.5s ease;
-			
+
 			// text settings
 			white-space: nowrap;
 			font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;

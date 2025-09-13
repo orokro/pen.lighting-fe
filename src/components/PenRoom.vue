@@ -75,6 +75,9 @@ import { computed, onMounted, onBeforeUnmount, ref } from 'vue';
 // components
 import PenLight from './PenLight.vue';
 
+// our app logic
+import PenPhysics from '../js/PenPhysics';
+
 // define props
 const props = defineProps({
 
@@ -91,6 +94,26 @@ const props = defineProps({
 	},
 
 });
+
+
+// make new physics instance
+const physics = new PenPhysics(
+	props.userRoomState,
+	physicsUpdate,
+	10,
+	{
+		maxAngleDeg: 90,
+		velocityGainDegPerUnitPerS: 100,
+	}
+);
+
+
+function physicsUpdate(newTheta) {
+	
+	console.log('Physics update ' + newTheta);
+	props.userRoomState.thetaRef.value = newTheta;
+}
+
 
 // DOM & stage metrics
 const stageRef = ref(null);
@@ -236,37 +259,39 @@ let lastV = 0;    // norm/sec
  */
 function updateKinematics(nowMs) {
 
-	const now = nowMs / 1000; // seconds
-	if (lastTime === 0) lastTime = now;
+	// const now = nowMs / 1000; // seconds
+	// if (lastTime === 0) lastTime = now;
 
-	const dt = Math.max(1e-3, now - lastTime); // s
+	// const dt = Math.max(1e-3, now - lastTime); // s
 	const combinedX = clamp(baseX.value + waveOffsetX.value, 0, 1);
 
-	// velocity (norm/sec) and acceleration (norm/sec^2)
-	const v = lastX == null ? 0 : (combinedX - lastX) / dt;
-	const a = (v - lastV) / dt;
+	// // velocity (norm/sec) and acceleration (norm/sec^2)
+	// const v = lastX == null ? 0 : (combinedX - lastX) / dt;
+	// const a = (v - lastV) / dt;
 
-	// Map acceleration to angle: tune gain so it feels natural.
-	// Typical a might be up to ~2 norm/s^2; gain ~ 18 yields up to ~36°, clamped at 15°.
-	const gain = 18;
-	let target = clamp(a * gain, -90, 90);
+	// // Map acceleration to angle: tune gain so it feels natural.
+	// // Typical a might be up to ~2 norm/s^2; gain ~ 18 yields up to ~36°, clamped at 15°.
+	// const gain = 18;
+	// let target = clamp(a * gain, -90, 90);
 
-	// Smoothly interpolate (time-based smoothing)
-	const prev = Number(props.userRoomState.thetaRef.value || 0);
+	// // Smoothly interpolate (time-based smoothing)
+	// const prev = Number(props.userRoomState.thetaRef.value || 0);
 
-	// Exponential-like smoothing with a fixed factor per update
-	const alpha = clamp(dt * 6, 0, 0.65); // ~tau≈0.16s, max 0.35 per frame
-	const next = lerp(prev, target, alpha);
+	// // Exponential-like smoothing with a fixed factor per update
+	// const alpha = clamp(dt * 6, 0, 0.65); // ~tau≈0.16s, max 0.35 per frame
+	// const next = lerp(prev, target, alpha);
+
+	physics.updateKinematics();
 
 	// Commit theta and normalized XY (so refs always hold normalized)
-	props.userRoomState.thetaRef.value = next;
+	// props.userRoomState.thetaRef.value = next;
 	props.userRoomState.xRef.value = combinedX;
 	props.userRoomState.yRef.value = clamp(baseY.value, 0, 1);
 
 	// advance history
-	lastTime = now;
-	lastX = combinedX;
-	lastV = v;
+	// lastTime = now;
+	// lastX = combinedX;
+	// lastV = v;
 }
 
 
