@@ -9,8 +9,6 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "bad-words": "^4.0.0",
-    "leo-profanity": "^1.8.0",
     "material-icons": "^1.13.14",
     "profanity-cleaner": "^0.0.3",
     "sass": "^1.92.1",
