@@ -111,6 +111,7 @@ const imageMaskLoaded = ref(false);
 // pen masking composable
 const { getPenImages } = usePenMasking();
 
+
 /**
  * The sprite image to use for penlights
  * 
@@ -160,17 +161,17 @@ const penStyle = computed(() => {
 	};
 });
 
+// store 
 const imageDetails = shallowRef(null);
 
 // compute the image mask URL if we have one
 onMounted(async ()=>{
 
+	// check if we should use a custom pen image with masking
 	const roomCode = props.roomDetails.code;
 	imageDetails.value = await getPenImages(roomCode, spriteSrc.value, 255);
-
 	imageMaskLoaded.value = imageDetails.value?.maskingMode || false;
 
-	console.log(imageDetails.value);
 });
 
 </script>
