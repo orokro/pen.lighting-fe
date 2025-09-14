@@ -49,7 +49,22 @@
 		>
 			<label class="checkbox">
 				<input type="checkbox" :checked="autoWaveActive" @change="toggleAutoWave" />
-				<span>Auto Wave</span>
+				<span>Auto Wave Mode</span>
+			</label>
+		</div>
+
+		<!-- Option for Auto Wave (top-right) -->
+		<div 
+			v-if="hasControls"
+			class="ui ui-right right-2"
+			@touchstart.stop
+			@touchmove.stop
+			@touchend.stop
+			@click.stop
+		>
+			<label class="checkbox">
+				<input type="checkbox" :checked="motionControlsActive" @change="toggleMotionControls" />
+				<span>Motion Controls</span>
 			</label>
 		</div>
 
@@ -82,6 +97,9 @@ import { computed, onMounted, onBeforeUnmount, ref } from 'vue';
 
 // components
 import PenLight from './PenLight.vue';
+
+// our app
+import { PhoneMotion } from '../js/PhoneMotion';
 
 // define props
 const props = defineProps({
@@ -266,10 +284,14 @@ function updateKinematics(nowMs) {
 	const alpha = clamp(dt * 6, 0, 0.65); // ~tau≈0.16s, max 0.35 per frame
 	const next = lerp(prev, target, alpha);
 
+	const mt = motionControlsActive.value ? motionTheta.value : 0;
+	const mx = motionControlsActive.value ? motionX.value : 0;
+	const my = motionControlsActive.value ? motionY.value : 0;
+
 	// Commit theta and normalized XY (so refs always hold normalized)
-	props.userRoomState.thetaRef.value = next;
-	props.userRoomState.xRef.value = combinedX;
-	props.userRoomState.yRef.value = clamp(baseY.value, 0, 1);
+	props.userRoomState.thetaRef.value = next + mt;
+	props.userRoomState.xRef.value = combinedX + mx;
+	props.userRoomState.yRef.value = clamp(baseY.value, 0, 1) + my;
 
 	// advance history
 	lastTime = now;
@@ -410,6 +432,49 @@ function startWave() {
 }
 
 
+
+const motionTheta = ref(0);
+const motionX = ref(0);
+const motionY = ref(0);
+
+
+
+function phoneMotionUpdate(data){
+	console.log(`data`, data);
+
+	motionTheta.value = data.theta;
+	motionX.value = data.x;
+	motionY.value = data.y;
+
+	updateKinematics(performance.now());
+}
+
+
+const motionControlsActive = ref(false);
+const phoneMotionControls = new PhoneMotion(phoneMotionUpdate);
+const hasControls = ref(false);
+hasControls.value = phoneMotionControls.available;
+
+
+function toggleMotionControls(e) {
+
+	
+	const checked = !!e.target.checked;
+	if (checked)
+		phoneMotionControls.start();
+	else 
+		phoneMotionControls.stop();
+
+	motionControlsActive.value = checked;
+}
+
+
+
+
+
+
+
+
 /**
  * Function to stop auto-wave if user disables it.
  */
@@ -510,6 +575,7 @@ onBeforeUnmount(() => {
 			// left/right variants
 			&.ui-left { left: 12px; }
 			&.ui-right { right: 12px; }
+			&.right-2 { top: 60px; }
 
 			// the color select dropdown
 			.color-select {
