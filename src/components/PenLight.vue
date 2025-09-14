@@ -21,27 +21,30 @@
 			draggable="false"
 		/>
 
-		<!-- glowing rectangles unless we have a masked-image present -->
-		<div class="glow-wrapper blur20">
-			<div 
-				class="glow" 
-				:class="{'mask-mode': imageMaskLoaded}"
-				:style="imageMaskLoaded ? {
-					'-webkit-mask-image': `url(${imageDetails.penMask})`,
-					'mask-image': `url(${imageDetails.penMask})`,				
-				} : {}"
-			/>
-		</div>
-		<div class="glow-wrapper blur3">
-			<div 
-				class="glow"
-				:class="{'mask-mode': imageMaskLoaded}"
-				:style="imageMaskLoaded ? {
-					'-webkit-mask-image': `url(${imageDetails.penMask})`,
-					'mask-image': `url(${imageDetails.penMask})`,				
-				} : {}"
-			/>
-		</div>
+		<template v-if="showGlow">
+
+			<!-- glowing rectangles unless we have a masked-image present -->
+			<div class="glow-wrapper blur20">
+				<div 
+					class="glow" 
+					:class="{'mask-mode': imageMaskLoaded}"
+					:style="imageMaskLoaded ? {
+						'-webkit-mask-image': `url(${imageDetails.penMask})`,
+						'mask-image': `url(${imageDetails.penMask})`,				
+					} : {}"
+				/>
+			</div>
+			<div class="glow-wrapper blur3">
+				<div 
+					class="glow"
+					:class="{'mask-mode': imageMaskLoaded}"
+					:style="imageMaskLoaded ? {
+						'-webkit-mask-image': `url(${imageDetails.penMask})`,
+						'mask-image': `url(${imageDetails.penMask})`,				
+					} : {}"
+				/>
+			</div>
+		</template>
 
 		<!-- Nickname label -->
 		<div 
@@ -54,7 +57,7 @@
 <script setup>
 
 // vue
-import { ref, onMounted, onBeforeUnmount, shallowRef, computed } from 'vue'
+import { ref, onMounted, onBeforeUnmount, shallowRef, computed, watch, nextTick } from 'vue'
 
 // our app
 import { usePenMasking } from '../composables/usePenMasking';
@@ -112,11 +115,26 @@ const props = defineProps({
 // cleaned username
 const nickNameClean = computed(() => censorUsername(props.nickName));
 
+// true when we should show the glow (only if opacity > 0 and color is not black)
+const showGlow = ref(true);
+
 // true if we should use the masking image for the glow
 const imageMaskLoaded = ref(false);
 
 // pen masking composable
 const { getPenImages } = usePenMasking();
+
+
+// time out between color changes, because broken on mobile
+watch(()=>props.color, (newVal) => {
+	
+	// hide for 100 ms
+	showGlow.value = false;
+	setTimeout(() => {
+		showGlow.value = true;
+	}, 100);
+
+}, { immediate: true });
 
 
 /**
@@ -130,7 +148,6 @@ const spriteSrc = computed(() => {
 	const b64 = props.roomDetails?.penlightSprite;
 	return b64 ? `${b64}` : '/img/default_light.png';
 });
-
 
 
 /**
