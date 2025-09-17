@@ -402,11 +402,12 @@ const displayedPenlights = computed(() => {
 	// 2) Duplicate logic
 	const expanded = makeDuplicates(
 
+		
 		baseUsers.map((u, i) => {
 
 			// Normalize/clamp incoming values just in case
-			const nx = clamp01(Number(u.x)) * stageW.value;
-			const ny = clamp01(Number(u.y)) * stageH.value;
+			const nx = clamp01(Number(u.x)) * (stageW.value-spriteSize.value) + (spriteSize.value/2);
+			const ny = clamp01(Number(u.y)) * (stageH.value-spriteSize.value) + (spriteSize.value*0.8);
 			const theta = Number(u.theta || 0);
 			const hex = colorForUser(u);
 			const nickname = String(u.nickname || '');
