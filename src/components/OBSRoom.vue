@@ -24,6 +24,10 @@
 			</div>
 		</div>
 
+		<PenLightTrails
+			:penlightRefs="Array.from(penRefs.values())"
+		/>
+
 		<!-- Rendered penlights (possibly limited by maxConcurrent, plus duplicates) -->
 		<PenLight
 			v-for="pl in displayedPenlights"
@@ -35,6 +39,7 @@
 			:penTransform="pl"
 			:penSize="spriteSize"
 			:smoothMotion="true"
+			:ref="el => penRefs.set(pl.key, el)"
 		/>
 
 	</div>
@@ -43,10 +48,11 @@
 <script setup>
 
 // vue
-import { computed, onMounted, onBeforeUnmount, ref, watch, shallowRef } from 'vue';
+import { computed, onMounted, onBeforeUnmount, ref, watch, reactive, shallowRef } from 'vue';
 
 // components
 import PenLight from '../components/PenLight.vue';
+import PenLightTrails from '../components/PenLightTrails.vue';
 
 // define some props
 const props = defineProps({
@@ -71,6 +77,15 @@ const stageRef = ref(null);
 const stageW = ref(1);
 const stageH = ref(1);
 
+// refs to pen elements
+const penRefs = reactive(new Map());
+
+function getPenSpriteSrc(pl) {
+
+	// if will be a base64 data URL if provided
+	const b64 = props.roomDetails?.penlightSprite;
+	return b64 ? `${b64}` : '/img/default_light.png';
+}
 
 /**
  * Updates the width/height of our stage for doing maths on the pointers
@@ -401,7 +416,6 @@ const displayedPenlights = computed(() => {
 
 	// 2) Duplicate logic
 	const expanded = makeDuplicates(
-
 		
 		baseUsers.map((u, i) => {
 

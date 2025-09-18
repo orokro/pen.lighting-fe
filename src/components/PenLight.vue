@@ -8,6 +8,7 @@
 
 	<!-- outermost wrapper -->
 	<div
+		ref="rootEl"
 		class="pen"
 		:class="{ 'use-motion-smoothing': smoothMotion }"
 		:style="penStyle"
@@ -124,6 +125,8 @@ const imageMaskLoaded = ref(false);
 // pen masking composable
 const { getPenImages } = usePenMasking();
 
+// Reference to root element of the PenLight
+const rootEl = ref(null);
 
 // time out between color changes, because broken on mobile
 watch(()=>props.color, (newVal) => {
@@ -197,6 +200,31 @@ onMounted(async ()=>{
 	imageDetails.value = await getPenImages(roomCode, spriteSrc.value, 255);
 	imageMaskLoaded.value = imageDetails.value?.maskingMode || false;
 
+});
+
+/**
+ * Draw the trail for this penlight.
+ * Uses getBoundingClientRect() to get the animated DOM position/size,
+ * then renders a red rectangle at that position.
+ *
+ * @param {CanvasRenderingContext2D} ctx - Canvas 2D context
+ */
+ function drawPenTrail(ctx) {
+	
+	if (!rootEl.value) 
+		return;
+
+	// Get live bounding box (reflects CSS transitions/animations)
+	const rect = rootEl.value.getBoundingClientRect()
+
+	// Draw rectangle
+	ctx.strokeStyle = 'red'
+	ctx.lineWidth = 2
+	ctx.strokeRect(rect.left, rect.top, rect.width, rect.height)
+}
+
+defineExpose({
+	drawPenTrail
 });
 
 </script>
