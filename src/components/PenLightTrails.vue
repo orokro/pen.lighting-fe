@@ -33,21 +33,30 @@ let ctx = null
 let frameId = null
 
 /**
- * Draw the current trails.
- * Iterates through each penlight ref, grabs its DOM bounding box,
- * and draws a red rectangle to represent its position on screen.
+ * Draw the current trails with a true-to-zero fade.
+ * We multiply existing alpha each frame using 'destination-in',
+ * so pixels reach full transparency after finite steps.
  *
- * @param {CanvasRenderingContext2D} context - 2D rendering context for canvas
+ * @param {CanvasRenderingContext2D} ctx
  */
-function drawTrail(context) {
+ function drawTrail(ctx) {
+	const { width, height } = ctx.canvas;
 
-	if (!props.penlightRefs?.length) return
+	// 1) Multiply existing alpha by 0.95 (≈5% fade per frame).
+	// After ~117 frames, 0.95^n * 255 < 1 → alpha becomes 0.
+	ctx.save();
+	ctx.globalCompositeOperation = 'destination-in';
+	ctx.globalAlpha = 0.85;   // smaller => longer trails; bigger => faster fade
+	ctx.fillRect(0, 0, width, height);
+	ctx.restore();
 
+	// 2) Draw new trails on top (normal painting).
+	if (!props.penlightRefs?.length) return;
 	props.penlightRefs.forEach(refEl => {
-		
-		refEl.drawPenTrail(context);
+		refEl?.drawPenTrail(ctx);
 	});
 }
+
 
 /**
  * Main render loop at ~60fps.
@@ -59,31 +68,40 @@ function renderLoop() {
 	frameId = requestAnimationFrame(renderLoop)
 }
 
+
 // Expose drawTrail() so other components (like PenLight.vue) can call it directly
 defineExpose({
 	drawTrail
 })
 
+
 onMounted(() => {
-	const canvas = trailCanvas.value
-	if (!canvas) return
+
+	const canvas = trailCanvas.value;
+	if (!canvas) 
+		return;
 
 	// Match canvas size to viewport
-	canvas.width = window.innerWidth
-	canvas.height = window.innerHeight
-	ctx = canvas.getContext('2d')
+	canvas.width = window.innerWidth;
+	canvas.height = window.innerHeight;
+	ctx = canvas.getContext('2d');
 
 	// Start animation loop
-	renderLoop()
+	renderLoop();
 
 	// Optional: handle resize
-	window.addEventListener('resize', resizeCanvas)
+	window.addEventListener('resize', resizeCanvas);
 })
 
+
 onBeforeUnmount(() => {
-	if (frameId) cancelAnimationFrame(frameId)
-	window.removeEventListener('resize', resizeCanvas)
+
+	if (frameId)
+		cancelAnimationFrame(frameId);
+
+	window.removeEventListener('resize', resizeCanvas);
 })
+
 
 /**
  * Resize canvas to always fill the screen.
@@ -93,15 +111,19 @@ function resizeCanvas() {
 	trailCanvas.value.width = window.innerWidth
 	trailCanvas.value.height = window.innerHeight
 }
-</script>
 
+</script>
 <style lang="scss" scoped>
-.trail-canvas {
-	position: absolute;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
-	pointer-events: none; // Prevent blocking interactions
-}
+
+	.trail-canvas {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		pointer-events: none; // Prevent blocking interactions
+
+		filter: blur(5px);
+	}
+
 </style>
