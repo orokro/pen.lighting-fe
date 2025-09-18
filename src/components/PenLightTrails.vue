@@ -5,7 +5,10 @@
 	Component to render light trails for the pen lights
 -->
 <template>
-	<canvas ref="trailCanvas" class="trail-canvas"></canvas>
+	<canvas 
+		ref="trailCanvas"
+		class="trail-canvas"
+	></canvas>
 </template>
 <script setup>
 
@@ -112,7 +115,9 @@ onMounted(() => {
 	// Match canvas size to viewport
 	canvas.width = window.innerWidth;
 	canvas.height = window.innerHeight;
-	ctx = canvas.getContext('2d');
+	ctx = canvas.getContext('2d', {
+		willReadFrequently: true
+	});
 
 	// Start animation loop
 	renderLoop();

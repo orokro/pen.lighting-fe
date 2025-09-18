@@ -254,6 +254,11 @@ export function usePenMasking() {
 	}
 
 
+	function _imageToImagedata(img) {
+		const { canvas, ctx } = _drawToBaseCanvas(img);
+		return ctx.getImageData(0, 0, canvas.width, canvas.height);
+	}
+
 	/**
 	 * Core API: getPenImages(roomCode, spriteSrc, tolerance = 0, replacementColor = '#DDDDDD')
 	 * Loads the image, scans for green (with tolerance), optionally builds mask & edited sprite,
@@ -262,10 +267,11 @@ export function usePenMasking() {
 	 * @param {string} roomCode - Unique room identifier to scope caching
 	 * @param {string} spriteSrc - URL or data URI for the pen sprite
 	 * @param {number} [tolerance=0] - Euclidean distance in RGB (0 = exact only). Typical useful range: 10..80
+	 * @param {boolean} [useDefaultMask=true] - Currently unused; always generates mask if green found
 	 * @param {string} [replacementColor='#DDDDDD'] - Hex CSS color for replacement (e.g., '#DDDDDD' or 'DDDDDD')
 	 * @returns {Promise<{ maskingMode: boolean, penImage: string, penMask: string | null }>}
 	 */
-	function getPenImages(roomCode, spriteSrc, tolerance = 0, replacementColor = '#DDDDDD') {
+	function getPenImages(roomCode, spriteSrc, tolerance = 0, useDefaultMask = true, replacementColor = '#DDDDDD') {
 
 		if (!roomCode || !spriteSrc) {
 			return Promise.reject(new Error('getPenImages(roomCode, spriteSrc) requires both parameters.'));
@@ -291,7 +297,14 @@ export function usePenMasking() {
 
 			// 4) Process pixels for green extraction and sprite edit (with tolerance & replacement)
 			const replacementRGB = _hexToRgb(replHex);
-			const { foundGreen, editedImageData, maskImageData } = _processImageData(imgData, tolerance, replacementRGB);
+			let { foundGreen, editedImageData, maskImageData } = _processImageData(imgData, tolerance, replacementRGB);
+
+			// if null and we still want a mask, create empty transparent mask
+			let usedDefaultMask = false;
+			if (useDefaultMask && !maskImageData) {
+				maskImageData = _imageToImagedata(await _loadImage('/img/default_mask.png'));
+				usedDefaultMask = true;
+			}
 
 			// 5) Commit edits back to base canvas
 			ctx.putImageData(editedImageData, 0, 0);
@@ -302,7 +315,7 @@ export function usePenMasking() {
 
 			// 7) Build result
 			return {
-				maskingMode: !!foundGreen,
+				maskingMode: (!!foundGreen) || usedDefaultMask,
 				penImage,
 				penMask
 			};
