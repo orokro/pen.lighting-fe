@@ -215,12 +215,12 @@ onMounted(async ()=>{
 		return;
 
 	// Get live bounding box (reflects CSS transitions/animations)
-	const rect = rootEl.value.getBoundingClientRect()
+	const rect = rootEl.value.getBoundingClientRect();
 
 	// Draw rectangle
-	ctx.strokeStyle = 'red'
-	ctx.lineWidth = 2
-	ctx.strokeRect(rect.left, rect.top, rect.width, rect.height)
+	ctx.strokeStyle =  `#${props.color}`;
+	ctx.lineWidth = 1;
+	ctx.strokeRect(rect.left, rect.top, rect.width, rect.height);
 }
 
 defineExpose({
