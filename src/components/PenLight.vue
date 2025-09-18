@@ -128,6 +128,17 @@ const { getPenImages } = usePenMasking();
 // Reference to root element of the PenLight
 const rootEl = ref(null);
 
+// store 
+const imageDetails = shallowRef(null);
+
+// your mask image (or canvas/bitmap)
+const imgMaskImage = ref(null);      
+
+// save our last colored image for re-use
+let lastColor = '';
+let lastImage = null;
+
+
 // time out between color changes, because broken on mobile
 watch(()=>props.color, (newVal) => {
 	
@@ -189,11 +200,6 @@ const penStyle = computed(() => {
 	};
 });
 
-// store 
-const imageDetails = shallowRef(null);
-
-// --- state ---
-const imgMaskImage = ref(null);      // your mask image (or canvas/bitmap)
 
 // compute the image mask URL if we have one
 onMounted(async ()=>{
@@ -215,11 +221,17 @@ onMounted(async ()=>{
 });
 
 
-let lastColor = '';
-let lastImage = null;
-
+/**
+ * Colorize a mask image with the given hex color.
+ * Caches the last result for efficiency.
+ * 
+ * @param {HTMLImageElement} img - The source mask image (must be loaded)
+ * @param {string} hex - The hex color string (e.g. '#ff0000')
+ * @returns {HTMLImageElement} - A new <img> element with the colored result
+ */
 function colorImage(img, hex) {
 
+	// return cached if same color
 	if(hex===lastColor && lastImage!=null)
 		return lastImage;
 	
@@ -227,9 +239,9 @@ function colorImage(img, hex) {
 	if (!(img instanceof HTMLImageElement)) throw new TypeError('colorImage: expected HTMLImageElement');
 	if (!img.complete || img.naturalWidth === 0) throw new Error('colorImage: image not loaded');
 
+	// get image size & make matching offscreen canvas
 	const w = img.naturalWidth;
 	const h = img.naturalHeight;
-
 	const canvas = document.createElement('canvas');
 	canvas.width = w;
 	canvas.height = h;
@@ -256,11 +268,6 @@ function colorImage(img, hex) {
 	return out;
 }
 
-// usage:
-// const imageMask = colorImage(imgMaskImage.value, '#FF0000');
-
-
-
 
 /**
  * Draw the trail for this penlight.
@@ -284,9 +291,8 @@ function colorImage(img, hex) {
 	if(imgMaskImage.value==null)
 		return;
 
+	// get colored image to dra
 	const imageMask = colorImage(imgMaskImage.value, `#${color}`);
-	// console.log(imageMask);
-
 
 	// Fallback if no transform, just draw the rect
 	if (!transform || transform === 'none') {
@@ -318,15 +324,22 @@ function colorImage(img, hex) {
 
 	// Draw the image mask instead of the box
 	if (imageMask && imageMask.complete) {
+		
 		ctx.save();
+
 		// Translate context to the center of the element
 		ctx.translate(centerX, centerY);
+
 		// Rotate the context by the computed angle
 		ctx.rotate(theta);
-		// Draw the image centered
+
+		// Draw the image centered, with some initial alpha
+		// ctx.globalAlpha = 0.15;
 		ctx.drawImage(imageMask, -halfSize, -halfSize, penSize, penSize);
+
 		// Restore the context to prevent affecting other drawings
 		ctx.restore();
+
 	} else {
 
 		return;
@@ -356,88 +369,8 @@ function colorImage(img, hex) {
 	}
 }
 
-/**
- * Draw the trail for this penlight.
- *
- * @param {CanvasRenderingContext2D} ctx - Canvas 2D context
- */
- function drawPenTrailz(ctx) {
-	if (!rootEl.value) return
 
-	const el = rootEl.value;
-	const rect = el.getBoundingClientRect();
-	const style = window.getComputedStyle(el);
-	const transform = style.transform;
-	
-	// Get props from the component directly
-	const { penSize, color } = props;
-
-	// Fallback if no transform, just draw the rect
-	if (!transform || transform === 'none') {
-		ctx.strokeStyle = `#${color}`;
-		ctx.lineWidth = 1;
-		ctx.strokeRect(rect.left, rect.top, rect.width, rect.height);
-		return;
-	}
-
-	// Parse matrix
-	const match = transform.match(/^matrix\((.+)\)$/);
-	if (!match) {
-		console.warn('No valid matrix:', transform);
-		ctx.strokeStyle = `#${color}`;
-		ctx.strokeRect(rect.left, rect.top, rect.width, rect.height);
-		return;
-	}
-	const [a, b] = match[1].split(',').map(Number);
-	
-	// Calculate the interpolated rotation angle in radians from the matrix
-	const theta = Math.atan2(b, a);
-
-	// Get center point of the rect (which you confirmed is correct)
-	const centerX = rect.left + rect.width / 2;
-	const centerY = rect.top + rect.height / 2;
-
-	// Pen size comes from the component props
-	const halfSize = penSize / 2;
-	
-	// Define corners relative to the center of the box
-	const corners = [
-		{ x: -halfSize, y: -halfSize },
-		{ x: halfSize, y: -halfSize },
-		{ x: halfSize, y: halfSize },
-		{ x: -halfSize, y: halfSize }
-	];
-
-	const cosTheta = Math.cos(theta);
-	const sinTheta = Math.sin(theta);
-
-	// Apply rotation and then add back the center position
-	const transformed = corners.map(pt => ({
-		x: pt.x * cosTheta - pt.y * sinTheta + centerX,
-		y: pt.x * sinTheta + pt.y * cosTheta + centerY
-	}));
-
-	// Check for NaN
-	if (transformed.some(p => isNaN(p.x) || isNaN(p.y))) {
-		console.warn('Invalid transformed coords, using rect fallback');
-		ctx.strokeStyle = `#${color}`;
-		ctx.strokeRect(rect.left, rect.top, rect.width, rect.height);
-		return;
-	}
-
-	// Draw polygon
-	ctx.strokeStyle = `#${color}`;
-	ctx.lineWidth = 1;
-	ctx.beginPath();
-	ctx.moveTo(transformed[0].x, transformed[0].y);
-	for (let i = 1; i < transformed.length; i++) {
-		ctx.lineTo(transformed[i].x, transformed[i].y);
-	}
-	ctx.closePath();
-	ctx.stroke();
-}
-
-
+// expose method so pen trail renderer can call it
 defineExpose({
 	drawPenTrail
 });

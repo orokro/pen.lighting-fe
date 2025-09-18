@@ -32,6 +32,10 @@ let ctx = null
 // Animation frame handle
 let frameId = null
 
+// Frame counter for optional effects
+let frameNum = 0;
+
+
 /**
  * Draw the current trails with a true-to-zero fade.
  * We multiply existing alpha each frame using 'destination-in',
@@ -46,15 +50,40 @@ let frameId = null
 	// After ~117 frames, 0.95^n * 255 < 1 → alpha becomes 0.
 	ctx.save();
 	ctx.globalCompositeOperation = 'destination-in';
-	ctx.globalAlpha = 0.85;   // smaller => longer trails; bigger => faster fade
+	ctx.globalAlpha = 0.98;   // smaller => longer trails; bigger => faster fade
 	ctx.fillRect(0, 0, width, height);
 	ctx.restore();
+
+	// Optional: hard threshold to remove very faint trails
+	if(frameNum++ % 10 === 0) {
+		thresholdWipe(ctx, 27); 
+	}
 
 	// 2) Draw new trails on top (normal painting).
 	if (!props.penlightRefs?.length) return;
 	props.penlightRefs.forEach(refEl => {
 		refEl?.drawPenTrail(ctx);
 	});
+}
+
+
+/**
+ * Cutoff alpha below a certain threshold to 0.
+ * 
+ * @param {CanvasRenderingContext2D} ctx - Canvas 2D context
+ * @param {number} cutoff - Alpha cutoff (0-255); pixels below this become fully transparent	
+ */
+function thresholdWipe(ctx, cutoff = 10) {
+
+  const { width, height } = ctx.canvas;
+  const img = ctx.getImageData(0, 0, width, height);
+  const data = img.data;
+
+  // Set alpha to 0 if below cutoff
+  for (let i = 3; i < data.length; i += 4)
+    if (data[i] < cutoff) data[i] = 0;
+  
+  ctx.putImageData(img, 0, 0);
 }
 
 
@@ -116,6 +145,8 @@ function resizeCanvas() {
 <style lang="scss" scoped>
 
 	.trail-canvas {
+		
+		opacity: 0.3;
 		position: absolute;
 		top: 0;
 		left: 0;
@@ -124,6 +155,7 @@ function resizeCanvas() {
 		pointer-events: none; // Prevent blocking interactions
 
 		filter: blur(5px);
-	}
+
+	}// .trail-canvas
 
 </style>

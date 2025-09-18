@@ -486,7 +486,7 @@ onBeforeUnmount(() => {
 
 		// Transparent background for OBS
 		background: transparent;
-		/* background: gray; */
+		background: black;
 
 		// clear input events, though this shouldn't really matter for OBS
 		/* pointer-events: none;  */
