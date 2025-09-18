@@ -340,9 +340,11 @@ function colorImage(img, hex) {
 		// Restore the context to prevent affecting other drawings
 		ctx.restore();
 
-	} else {
+	} 
+	
+	if(false){
 
-		return;
+		// return;
 
 		// Fallback to drawing the box if the image mask is not loaded
 		ctx.strokeStyle = `#${color}`;
