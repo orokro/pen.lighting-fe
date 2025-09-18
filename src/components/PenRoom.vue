@@ -54,24 +54,30 @@
 		</div>
 
 		<!-- Center hint -->
-		<div class="hint">Drag your finger/mouse around!</div>
-
-		<!-- Center hint -->
-		<div 
-			v-if="roomDetails.name!='' && roomDetails.name!=null"
-			class="title"
-		>
-			Welcome to "{{roomDetails.name}}" Penlight Audience!
+		<div class="hint">
+			<div 
+				v-if="roomDetails.name!='' && roomDetails.name!=null"
+			>
+				Welcome to "{{roomDetails.name}}" Penlight Audience!
+				<br><br>
+			</div>
+			
+			Drag your finger/mouse around!
 		</div>
 
-		<!-- The PenLight component -->
-		<PenLight
-			:roomDetails="roomDetails"
-			:color="resolvedHex"
-			:opacity="1"
-			:penTransform="penTransform"
-			:nickName="props.userRoomState.nickname || 'Guest'"
-		/>
+		<!-- spawn pen on top of hints -->
+		<div class="pen-container">
+		
+			<!-- The PenLight component -->
+			<PenLight
+				:roomDetails="roomDetails"
+				:color="resolvedHex"
+				:opacity="1"
+				:penTransform="penTransform"
+				:nickName="props.userRoomState.nickname || 'Guest'"
+			/>
+		</div>
+
 	</div>
 
 </template>
@@ -485,9 +491,12 @@ onBeforeUnmount(() => {
 		position: fixed;
 		inset: 0;
 
-		// make back
+		// make back or pretty image
 		background: #000;
-
+		background-image: url('/img/room_bg.png');
+		background-position: top center;
+		background-size: cover;
+		
 		// disable text/touch selection
 		user-select: none;
 		-webkit-user-select: none;
@@ -503,7 +512,7 @@ onBeforeUnmount(() => {
 
 			// fixed a long top of screen
 			position: absolute;
-			top: 12px;
+			bottom: 12px;
 			z-index: 3;
 			pointer-events: auto;
 
@@ -528,6 +537,7 @@ onBeforeUnmount(() => {
 				color: black;
 
 				&:focus { border-color: #666; }
+
 			}// .color-select
 
 			// check box & label or w/e for the auto wave + more
@@ -558,14 +568,20 @@ onBeforeUnmount(() => {
 
 		// the string in the middle of the page prompting user to move finger/mouse around
 		.hint, .title {
+			
+			// for debug
+			/* border: 1px solid red; */
 
 			// fixed in center of page
 			position: absolute;
-			top: 50%;
+			top: 40%;
 			left: 50%;
 			transform: translate(-50%, -50%);
 			z-index: 1;
 
+			// fixed size
+			min-width: 100%;
+			
 			// slightly transparent
 			opacity: 0.6;
 
@@ -579,6 +595,24 @@ onBeforeUnmount(() => {
 			text-align: center;
 			
 		}// .hint
+
+
+		// area where pen spawns
+		.pen-container {
+
+			// for debug
+			/* border: 2px solid red; */
+
+			// fill the stage
+			position: absolute;
+			inset: 0;
+			pointer-events: none;
+
+			// on top of room text
+			z-index: 2;
+
+		}// .pen-container
+
 
 		// just title settings
 		.title {

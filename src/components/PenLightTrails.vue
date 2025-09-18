@@ -9,14 +9,17 @@
 </template>
 <script setup>
 
+// vue
 import { onMounted, onBeforeUnmount, ref, watch, defineExpose } from 'vue'
 
 /**
- * Props
+ * Props to render the penlight trails.
+ * 
  * @prop {Array} penlightRefs - Array of Vue refs pointing to penlight elements
  */
 const props = defineProps({
 
+	// list of penlight component refs
 	penlightRefs: {
 		type: Array,
 		required: true
@@ -44,6 +47,7 @@ let frameNum = 0;
  * @param {CanvasRenderingContext2D} ctx
  */
  function drawTrail(ctx) {
+
 	const { width, height } = ctx.canvas;
 
 	// 1) Multiply existing alpha by 0.95 (≈5% fade per frame).
@@ -98,12 +102,7 @@ function renderLoop() {
 }
 
 
-// Expose drawTrail() so other components (like PenLight.vue) can call it directly
-defineExpose({
-	drawTrail
-})
-
-
+// Start rendering when component is mounted
 onMounted(() => {
 
 	const canvas = trailCanvas.value;
@@ -123,6 +122,7 @@ onMounted(() => {
 })
 
 
+// Cleanup on unmount
 onBeforeUnmount(() => {
 
 	if (frameId)
@@ -136,24 +136,41 @@ onBeforeUnmount(() => {
  * Resize canvas to always fill the screen.
  */
 function resizeCanvas() {
-	if (!trailCanvas.value) return
-	trailCanvas.value.width = window.innerWidth
-	trailCanvas.value.height = window.innerHeight
+
+	// gtfo if no canvas
+	if (!trailCanvas.value)
+		return;
+
+	// Resize to fill window
+	trailCanvas.value.width = window.innerWidth;
+	trailCanvas.value.height = window.innerHeight;
 }
+
+
+// Expose drawTrail() so other components (like PenLight.vue) can call it directly
+defineExpose({
+	drawTrail
+});
 
 </script>
 <style lang="scss" scoped>
 
+	// full screen canvas for rendering the trails
 	.trail-canvas {
 		
-		opacity: 0.3;
+		// Prevent blocking interactions
+		pointer-events: none; 
+
+		// Fullscreen overlay
 		position: absolute;
 		top: 0;
 		left: 0;
 		width: 100%;
 		height: 100%;
-		pointer-events: none; // Prevent blocking interactions
 
+		// blur & blend the trails
+		opacity: 0.5;
+		mix-blend-mode: overlay;
 		filter: blur(5px);
 
 	}// .trail-canvas
