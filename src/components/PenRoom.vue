@@ -65,11 +65,16 @@
 			Drag your finger/mouse around!
 		</div>
 
+		<PenLightTrails
+			:penlightRefs="[penRef]"
+		/>
+		
 		<!-- spawn pen on top of hints -->
 		<div class="pen-container">
 		
 			<!-- The PenLight component -->
 			<PenLight
+				ref="penRef"
 				:roomDetails="roomDetails"
 				:color="resolvedHex"
 				:opacity="1"
@@ -88,6 +93,7 @@ import { computed, onMounted, onBeforeUnmount, ref } from 'vue';
 
 // components
 import PenLight from './PenLight.vue';
+import PenLightTrails from './PenLightTrails.vue';
 
 // define props
 const props = defineProps({
@@ -111,6 +117,8 @@ const stageRef = ref(null);
 const stageW = ref(1);
 const stageH = ref(1);
 
+// ref to pen el
+const penRef = ref(null);
 
 /**
  * Measures the size of the stage element and updates stageW/stageH.

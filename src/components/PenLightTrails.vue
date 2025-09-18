@@ -169,10 +169,10 @@ defineExpose({
 		height: 100%;
 
 		// blur & blend the trails
-		opacity: 0.5;
-		mix-blend-mode: overlay;
 		filter: blur(5px);
-
+		opacity: 0.5;
+		//mix-blend-mode: overlay;
+		
 	}// .trail-canvas
 
 </style>
