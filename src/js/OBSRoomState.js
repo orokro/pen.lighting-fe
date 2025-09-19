@@ -20,12 +20,14 @@ export class OBSRoomState {
 	 * Constructs the OBSRoomState instance
 	 * 
 	 * @param {string} roomCode The room code to connect to
+	 * @param {ref<object>} roomDetails The room details object as returned by the API
 	 * @param {string} [wsUrl] Optional WebSocket URL to connect to (defaults to current host)
 	 */
-	constructor(roomCode, wsUrl) {
+	constructor(roomCode, roomDetails, wsUrl) {
 
 		// save params
 		this.roomCode = roomCode;
+		this.roomDetails = roomDetails;
 		this.wsUrl = wsUrl ?? this._deriveWSUrl();
 
 		// non-reactive source of truth
@@ -94,6 +96,18 @@ export class OBSRoomState {
 				// Publish a cloned array for the template
 				this.usersListRef.value = [...this._users];
 			}
+
+			if(msg?.type === 'roomSettings'){
+
+				const newSettings = msg.settings;
+				console.log('New Settings', newSettings);
+				this.roomDetails.value = newSettings;
+
+				// for now, reload the page to apply new settings
+				// later, we can make this dynamic
+				window.location.reload();
+			}
+
 		});
 
 		// Handle close and error events

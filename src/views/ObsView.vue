@@ -63,11 +63,13 @@ const props = defineProps({
  */
 onMounted(async () => {
 
-	// make our obs room state
-	obsRoomState.value = new OBSRoomState(roomCode, apiUrl);
-
 	// get our room details
-	roomDetails.value = await useRoomDetails();
+	const rd = await useRoomDetails();
+	roomDetails.value = rd;
+
+	// make our obs room state
+	obsRoomState.value = new OBSRoomState(roomCode, roomDetails, apiUrl);
+
 });
 
 

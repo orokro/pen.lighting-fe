@@ -109,6 +109,24 @@ export class UserRoomState {
 			this.connectionStatusRef.value = 'error';
 			try { sock.close(); } catch { }
 		});
+
+		// listen for messages (none defined yet)
+		sock.addEventListener('message', (evt) => {
+			
+			let msg;
+			try { msg = JSON.parse(evt.data); } catch { return; }
+
+			if(msg?.type === 'roomSettings'){
+
+				const newSettings = msg.settings;
+				console.log('New Settings', newSettings);
+
+				// for now, reload the page to apply new settings
+				// later, we can make this dynamic
+				window.location.reload();
+			}
+
+		});
 	}
 
 
