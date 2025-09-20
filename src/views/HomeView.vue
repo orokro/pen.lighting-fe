@@ -249,7 +249,7 @@ async function lookupRoom (code) {
 	roomFetchCtrl = new AbortController()
 
 	try {
-		const res = await fetch(`${envAppURL}/rooms/${encodeURIComponent(code)}`, {
+		const res = await fetch(`${envAPIUrl}/rooms/${encodeURIComponent(code)}`, {
 			method: 'GET',
 			signal: roomFetchCtrl.signal
 		})
