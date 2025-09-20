@@ -37,7 +37,9 @@ if command -v cygpath >/dev/null 2>&1; then
 fi
 
 # --- build ---
-if [[ -f package-lock.json ]]; then npm ci; else npm install; fi
+#if [[ -f package-lock.json ]]; then npm ci; else npm install; fi
+#npm run "${NPM_BUILD_SCRIPT}"
+echo "ℹ️ Using existing node_modules (skipping install)"
 npm run "${NPM_BUILD_SCRIPT}"
 
 DIST_DIR="${REPO_ROOT}/dist"
