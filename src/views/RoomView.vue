@@ -52,7 +52,9 @@ const sessionDetails = shallowRef(getRoomSession(roomCode));
 const roomDetails = ref(null);
 
 // our hard-coded API url
-const apiUrl = 'wss://api.pen.lighting/ws';
+const envAPIUrl = import.meta.env.VITE_API_URL;
+const envWsUrl = import.meta.env.VITE_WS_URL;
+const envAppURL = import.meta.env.VITE_APP_URL;
 
 // our user room state
 const userRoomState = shallowRef(null);
@@ -75,7 +77,7 @@ onMounted(async () => {
 		roomCode, 
 		sessionDetails.value.username,
 		sessionDetails.value.roomPwd,
-		apiUrl,		
+		envWsUrl,		
 	);
 
 	// get our room details

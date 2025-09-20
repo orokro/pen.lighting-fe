@@ -117,6 +117,12 @@ const displayState = ref(STATE.LOADING)
 const editCode = ref(null);
 const inputCode = ref('');
 
+// base URL based on ENV
+const envAPIUrl = import.meta.env.VITE_API_URL;
+const envWsUrl = import.meta.env.VITE_WS_URL;
+const envAppURL = import.meta.env.VITE_APP_URL;
+
+
 // when we mount, we gotta see if we can recover the 
 onMounted(() => {
 
@@ -146,7 +152,7 @@ async function getPageData(){
 	});
 
 	// Call your API (adjust payload/endpoint to your actual schema)
-	const res = await fetch(`https://api.pen.lighting/rooms/${roomCode}/edit`, {
+	const res = await fetch(`${envAPIUrl}/rooms/${roomCode}/edit`, {
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json' },
 		body: payload
@@ -162,8 +168,9 @@ async function getPageData(){
 	// set room details
 	roomDetailsData.code = data.code;
 	roomDetailsData.editCode = data.editCode;
-	roomDetailsData.obsLink = `https://pen.lighting/obs/${data.code}`;
-
+	roomDetailsData.obsLink = `${envAppURL}/obs/${data.code}`;
+	roomDetailsData.pageLink = `${envAppURL}/room/${data.code}`;
+	
 	// update our form data
 	formData.name = data.name;
 	formData.password = data.password;
@@ -209,7 +216,7 @@ async function submit() {
 		const payload = JSON.stringify(rawFormData);
 		
 		// Call your API (adjust payload/endpoint to your actual schema)
-		const res = await fetch(`https://api.pen.lighting/rooms/${roomCode}`, {
+		const res = await fetch(`${envAPIUrl}/rooms/${roomCode}`, {
 			method: 'PUT',
 			headers: { 'Content-Type': 'application/json' },
 			body: payload

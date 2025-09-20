@@ -151,6 +151,11 @@ onMounted(() => {
 	onRoomCodeInput();
 });
 
+
+const envAPIUrl = import.meta.env.VITE_API_URL;
+const envWsUrl = import.meta.env.VITE_WS_URL;
+const envAppURL = import.meta.env.VITE_APP_URL;
+
 // ------------------------------
 // net request cancellation
 // ------------------------------
@@ -244,7 +249,7 @@ async function lookupRoom (code) {
 	roomFetchCtrl = new AbortController()
 
 	try {
-		const res = await fetch(`https://api.pen.lighting/rooms/${encodeURIComponent(code)}`, {
+		const res = await fetch(`${envAppURL}/rooms/${encodeURIComponent(code)}`, {
 			method: 'GET',
 			signal: roomFetchCtrl.signal
 		})
@@ -291,7 +296,7 @@ async function validatePassword (code, pw) {
 	pwFetchCtrl = new AbortController()
 
 	try {
-		const res = await fetch(`https://api.pen.lighting/users/join/${encodeURIComponent(code)}`, {
+		const res = await fetch(`${envAPIUrl}/users/join/${encodeURIComponent(code)}`, {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify({ password: pw, nick: '' }),
@@ -325,15 +330,18 @@ function cancelPasswordCheck () {
 // join click → POST /users/join/:code (final)
 // ------------------------------
 async function onJoinClick () {
-	if (!canJoin.value || joining.value) return
+
+	if (!canJoin.value || joining.value)
+		return;
 
 	const code = String(roomCode.value || '').trim()
 	const pw = String(password.value || '')
 	const nick = String(nickname.value || '').trim()
 
 	joining.value = true
+
 	try {
-		const res = await fetch(`https://api.pen.lighting/users/join/${encodeURIComponent(code)}`, {
+		const res = await fetch(`${envAPIUrl}/users/join/${encodeURIComponent(code)}`, {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify({ password: pw, nick })
@@ -345,6 +353,7 @@ async function onJoinClick () {
 		// persist & navigate
 		saveRoomSession(code, pw, nick)
 		await router.push({ path: `/room/${code}` })
+
 	} catch (err) {
 		if (roomIsProtected.value) {
 			passwordError.value = err?.message || 'Failed to join'

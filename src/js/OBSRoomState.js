@@ -11,6 +11,11 @@
 // vue imports
 import { shallowRef, ref } from 'vue';
 
+// base URL based on ENV
+const envAPIUrl = import.meta.env.VITE_API_URL;
+const envWsUrl = import.meta.env.VITE_WS_URL;
+const envAppURL = import.meta.env.VITE_APP_URL;
+
 /**
  * The main money - a class to manage the WebSocket connection and room state
  */
@@ -51,8 +56,10 @@ export class OBSRoomState {
 	 * @returns {string} The derived WebSocket URL based on current location
 	 */
 	_deriveWSUrl() {
-		const proto = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-		return `${proto}//api.${window.location.host}`;
+
+		return envWsUrl;
+		// const proto = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+		// return `${proto}//api.${window.location.host}`;
 	}
 
 

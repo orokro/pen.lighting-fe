@@ -48,7 +48,10 @@ const roomCode = route.params.room_code;
 const roomDetails = ref(null);
 
 // our hard-coded API url
-const apiUrl = 'wss://api.pen.lighting/ws';
+const envAPIUrl = import.meta.env.VITE_API_URL;
+const envWsUrl = import.meta.env.VITE_WS_URL;
+const envAppURL = import.meta.env.VITE_APP_URL;
+
 
 // define props
 const props = defineProps({ 
@@ -68,7 +71,7 @@ onMounted(async () => {
 	roomDetails.value = rd;
 
 	// make our obs room state
-	obsRoomState.value = new OBSRoomState(roomCode, roomDetails, apiUrl);
+	obsRoomState.value = new OBSRoomState(roomCode, roomDetails, envWsUrl);
 
 });
 

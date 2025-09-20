@@ -11,6 +11,10 @@ import { useRoute } from 'vue-router'
 // A simple in-memory cache of ongoing fetch promises, keyed by room code
 const roomPromiseCache = new Map();
 
+// base URL based on ENV
+const envAPIUrl = import.meta.env.VITE_API_URL;
+const envWsUrl = import.meta.env.VITE_WS_URL;
+const envAppURL = import.meta.env.VITE_APP_URL;
 
 /**
  * Fetch room details for the current route's :room_code.
@@ -55,7 +59,7 @@ export async function useRoomDetails(useCache = false, options = {}) {
 	const promise = (async () => {
 		try {
 			const res = await fetch(
-				`https://api.pen.lighting/rooms/${encodeURIComponent(code)}`,
+				`${envAPIUrl}/rooms/${encodeURIComponent(code)}`,
 				{ headers: { Accept: 'application/json' }, signal: controller.signal }
 			)
 			if (!res.ok) 

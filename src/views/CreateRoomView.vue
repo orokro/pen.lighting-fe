@@ -54,6 +54,12 @@ const formData = reactive({
 	maxConcurrent: 100,	
 });
 
+// base URL based on ENV
+const envAPIUrl = import.meta.env.VITE_API_URL;
+const envWsUrl = import.meta.env.VITE_WS_URL;
+const envAppURL = import.meta.env.VITE_APP_URL;
+
+
 // handle form submit
 async function submit() {
 
@@ -63,7 +69,7 @@ async function submit() {
 		const payload = JSON.stringify(toRaw(unref(formData))) 
 
 		// Call your API (adjust payload/endpoint to your actual schema)
-		const res = await fetch('https://api.pen.lighting/rooms', {
+		const res = await fetch(`${envAPIUrl}/rooms`, {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
 			body: payload
