@@ -1,0 +1,1 @@
+function u(){function s(o){return`roomSession:${o}`}function n(o,e,i){sessionStorage.setItem(s(o),JSON.stringify({roomPwd:e,username:i}))}function t(o){const e=sessionStorage.getItem(s(o));return e?JSON.parse(e):null}function r(o){sessionStorage.removeItem(s(o))}return{saveRoomSession:n,getRoomSession:t,clearRoomSession:r}}export{u};
