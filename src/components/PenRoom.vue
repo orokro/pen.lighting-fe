@@ -66,6 +66,7 @@
 		</div>
 
 		<PenLightTrails
+			v-if="false"
 			:penlightRefs="[penRef]"
 		/>
 		
