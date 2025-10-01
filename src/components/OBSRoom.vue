@@ -113,7 +113,12 @@ function updateStageSize() {
  * Rule: Sprite size rule: 1/4 of viewport height, max 256
  */
 const spriteSize = computed(() => {
-	return Math.min(256, Math.floor(stageH.value / 4));
+
+	// new logic: hard coded in room settings
+	const imageBaseSize = 256;
+	return Math.floor((props.roomDetails?.penScale || 1) * imageBaseSize);
+
+	//return Math.min(256, Math.floor(stageH.value / 4));
 });
 
 

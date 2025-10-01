@@ -238,7 +238,7 @@
 					class="slider"
 					type="range"
 					min="0.1"
-					max="5"
+					max="2"
 					step="0.1"
 					:value="model.penScale"
 					@input="model.penScale = Math.max(0.1, Math.min(5, parseFloat($event.target.value) || 1))"
