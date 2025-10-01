@@ -43,15 +43,29 @@ const { saveEditCode } = useEditCodes();
 
 // object w/ all the user customizable data for the Room form
 const formData = reactive({
+
+	// general room settings
 	name: '',
 	password: '',
+
+	// obs display
 	themeColor: '00ABAE',
 	showCode: 'bottom-left',
-	penColors: [],
-	penlightSprite: null,
-	duplicateUsers: false,
-	duplicationThreshold: 10,
+	showCodeScale: 1,
 	maxConcurrent: 100,	
+
+	// pen settings
+	penColors: [],
+	allowAnyColor: false,
+	penlightSprite: null,
+	penScale: 1,
+	penTrails: true,
+	penTrailsIntensity: 0.5,
+	penTrailsDecay: 0.5,
+
+	// deprecated pen settings
+	duplicateUsers: false,
+	duplicationThreshold: 10,	
 });
 
 // base URL based on ENV

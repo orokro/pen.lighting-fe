@@ -88,6 +88,27 @@
 			</div>
 		</div>
 
+		<!-- CODE SIZE -->
+		<div class="row">
+			<div class="label" for="showCode">
+				Code Size
+				<div class="desc">Adjust the scale of the code</div>
+			</div>
+			<div class="field">
+				<div class="size-value">{{ model.showCodeScale.toFixed(1) }}×</div>
+				<input 
+					id="showCodeScale"
+					class="slider"
+					type="range"
+					min="0.1"
+					max="5"
+					step="0.1"
+					:value="model.showCodeScale"
+					@input="model.showCodeScale = Math.max(0.1, Math.min(5, parseFloat($event.target.value) || 1))"
+				/>
+			</div>
+		</div>
+
 		<!-- MAX CONCURRENT -->
 		<div class="row">
 			<div class="label" for="maxConc">
@@ -133,14 +154,15 @@
 					<!-- Inline Add/Recolor Popover -->
 					<div v-if="showAddPicker" class="popover">
 						<div align="center">
+							<div class="popover-actions">
+								<button type="button" @click="confirmAddColor">Confirm</button>
+								<button type="button" class="ghost" @click="cancelAddColor">Cancel</button>
+							</div>
 							<div class="color-wrapper">
 								<input ref="addPickerRef" type="color" v-model="tempPick" />
 							</div>
 						</div>
-						<div class="popover-actions">
-							<button type="button" @click="confirmAddColor">Confirm</button>
-							<button type="button" class="ghost" @click="cancelAddColor">Cancel</button>
-						</div>
+						
 					</div>
 
 					<!-- Simple per-swatch menu -->
@@ -203,38 +225,122 @@
 			</div>
 		</div>
 
-		<!-- DUPLICATE USERS (toggle) -->
+		<!-- PEN LIGHT SIZE -->
+		<div class="row">
+			<div class="label" for="showCode">
+				Pen Size
+				<div class="desc">Adjust the scale of the lights</div>
+			</div>
+			<div class="field">
+				<div class="size-value">{{ model.penScale.toFixed(1) }}×</div>
+				<input 
+					id="penScale"
+					class="slider"
+					type="range"
+					min="0.1"
+					max="5"
+					step="0.1"
+					:value="model.penScale"
+					@input="model.penScale = Math.max(0.1, Math.min(5, parseFloat($event.target.value) || 1))"
+				/>
+			</div>
+		</div>
+
+
+		<!-- PEN TRAILS (toggle) -->
 		<div class="row">
 			<div class="label">
-				Duplicate Users?
-				<div class="desc">Show users more than once to fill space?</div>
+				Enable Glow Trails?
+				<div class="desc">Pens leave glow trails behind?</div>
 			</div>
 			<div class="field switch-field">
 				<label class="switch">
-					<input type="checkbox" :checked="model.duplicateUsers" @change="toggleDuplicateUsers($event.target.checked)" />
+					<input type="checkbox" :checked="model.penTrails" @change="togglePenTrails($event.target.checked)" />
 					<span class="slider"></span>
 				</label>
 			</div>
 		</div>
 
-		<!-- DUPLICATION THRESHOLD -->
+
+		<!-- PEN TRAIL INTENSITY -->
 		<div class="row">
-			<div class="label" for="dupThresh">
-				Dupe Threshold
-				<div class="desc">Cut off to stop duplication</div>
+			<div class="label" for="showCode">
+				Glow Trail Intensity
+				<div class="desc">Adjust the scale of the lights</div>
 			</div>
 			<div class="field">
-				<input
-					id="dupThresh"
-					type="number"
-					min="1"
-					max="100"
-					:value="model.duplicationThreshold"
-					@input="setDuplicationThreshold($event.target.value)"
+				<div class="size-value">{{ model.penTrailsIntensity.toFixed(1) }}</div>
+				<input 
+					id="penTrailsIntensity"
+					class="slider"
+					type="range"
+					min="0.1"
+					max="1"
+					step="0.1"
+					:value="model.penTrailsIntensity"
+					@input="model.penTrailsIntensity = Math.max(0.1, Math.min(1, parseFloat($event.target.value) || 1))"
 				/>
 			</div>
 		</div>
-		
+
+		<!-- GLOW TRAIL DECAY -->
+		<div class="row">
+			<div class="label" for="showCode">
+				Glow Trail Decay
+				<div class="desc">How quick will the trails fade?<br>Higher value is longer.</div>
+			</div>
+			<div class="field">
+				<div class="size-value">{{ model.penTrailsDecay.toFixed(1) }}</div>
+				<input 
+					id="penTrailsDecay"
+					class="slider"
+					type="range"
+					min="0.1"
+					max="1"
+					step="0.1"
+					:value="model.penTrailsDecay"
+					@input="model.penTrailsDecay = Math.max(0.1, Math.min(1, parseFloat($event.target.value) || 1))"
+				/>
+			</div>
+		</div>
+
+
+		<!-- probably nobody likes these settings, we'll hide them for now -->
+		<template v-if="false">
+
+			<!-- DUPLICATE USERS (toggle) -->
+			<div class="row">
+				<div class="label">
+					Duplicate Users?
+					<div class="desc">Show users more than once to fill space?</div>
+				</div>
+				<div class="field switch-field">
+					<label class="switch">
+						<input type="checkbox" :checked="model.duplicateUsers" @change="toggleDuplicateUsers($event.target.checked)" />
+						<span class="slider"></span>
+					</label>
+				</div>
+			</div>
+
+			<!-- DUPLICATION THRESHOLD -->
+			<div class="row">
+				<div class="label" for="dupThresh">
+					Dupe Threshold
+					<div class="desc">Cut off to stop duplication</div>
+				</div>
+				<div class="field">
+					<input
+						id="dupThresh"
+						type="number"
+						min="1"
+						max="100"
+						:value="model.duplicationThreshold"
+						@input="setDuplicationThreshold($event.target.value)"
+					/>
+				</div>
+			</div>
+		</template>
+
 	</div>
 </template>
 <script setup>
@@ -546,12 +652,22 @@ function resizePngToSquare(dataUrl, size = 256) {
 
 
 /**
- * Switch + numbers: coerce to valid ranges, commit immediately
+ * Handle the pen trails toggle switch
  * 
- * @param v - value from input event
+ * @param {boolean} v - value from input event
+ */
+function togglePenTrails(v) {
+	model.value.penTrails = !!v;
+}
+
+
+/**
+ * Handle the duplicate users toggle switch
+ * 
+ * @param {boolean} v - value from input event
  */
 function toggleDuplicateUsers(v) {
-	model.value.duplicateUsers = !!v
+	model.value.duplicateUsers = !!v;
 }
 
 
@@ -730,9 +846,11 @@ function setMaxConcurrent(v) {
 			justify-content: start;
 			
 			text-align: right;
-			font-weight: 600;
+			font-weight: 100;
 			padding-top: 0.4rem;
 
+			font-size: 20px;
+			
 			// smaller desc line
 			.desc {
 				font-family: "Indie Flower", cursive;
@@ -748,7 +866,7 @@ function setMaxConcurrent(v) {
 		// the area that contains the input / widgets
 		.field {
 
-			// box
+			// box	
 			justify-self: start;
 			width: 100%;
 
@@ -768,6 +886,7 @@ function setMaxConcurrent(v) {
 				// text
 				font-size: 0.95rem;
 
+				
 				&:focus {
 					border-color: #7c8df9;
 					box-shadow: 0 0 0 3px rgba(124, 141, 249, 0.2);
@@ -776,6 +895,19 @@ function setMaxConcurrent(v) {
 				&.invalid { border-color: #e54848; }
 
 			}// input[type="text"], input[type="password"], input[type="number"], select
+
+			input[type="range"] {
+				width: 100%;
+				accent-color: #7c8df9;
+			}
+
+			.size-value {
+				position: relative;
+				top: 15px;
+				font-size: 18px;
+				font-weight: 100;
+				margin-bottom: 0;
+			}
 
 			// for when input has an error
 			.error {
@@ -829,8 +961,7 @@ function setMaxConcurrent(v) {
 
 			display: flex;
 			align-items: center;
-			gap: 0.6rem;
-
+			gap: 0.6rem;			
 			input[type="color"] {
 
 				padding: 0;
@@ -904,13 +1035,15 @@ function setMaxConcurrent(v) {
 				border-radius: 10px;
 				box-shadow: 0 12px 24px rgba(16, 24, 40, 0.12);
 
+				.color-wrapper {
+					margin-top: 0.5rem;
+				}
 				// things inside the popover
 				.popover-actions {
 
 					display: flex;
 					gap: 0.5rem;
-					margin-top: 0.5rem;
-
+					
 					// the button styles
 					button {
 						border: 3px solid #d0d5dd;

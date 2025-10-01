@@ -16,7 +16,9 @@
 
 	<!-- main outer most wrapper -->
 	<div class="room-details-form">
-		
+
+		<div class="row-header">OBS Integration & Sharing Details</div>
+
 		<!-- CODE -->
 		<div class="row">
 			<div class="label" for="roomCode">
@@ -59,7 +61,19 @@
 				v-model="obsLink"
 				readonly
 			/>
-		</div>		
+		</div>	
+		
+		<!-- SHARE -->
+		<div class="row row--full">
+			Share Link
+			<div class="desc">Give this link to chat! (e.g. pinned message)</div>
+			<input
+				id="shareLink"
+				type="text"
+				v-model="shareLink"
+				readonly
+			/>
+		</div>	
 
 	</div>
 </template>
@@ -88,7 +102,7 @@ const props = defineProps({
 const code = ref('');
 const editCode = ref('');
 const obsLink = ref('');
-
+const shareLink = ref('');
 
 // function to update field data from prop
 function updateFields() {
@@ -96,6 +110,7 @@ function updateFields() {
 		if (props.data.code) code.value = props.data.code;
 		if (props.data.editCode) editCode.value = props.data.editCode;
 		if (props.data.obsLink) obsLink.value = props.data.obsLink;
+		if (props.data.shareLink) shareLink.value = props.data.shareLink;
 	}
 }
 
@@ -133,7 +148,23 @@ onMounted(()=>{
 			gap: 0.4rem;
 
 			grid-column: 1 / -1;      // span across all columns
+			font-size: 20px;
 		}
+
+		// to break up sections a bit
+		.row-header {
+			
+			// span across both columns
+			grid-column: 1 / -1;
+
+			background: #00ABAE;
+			background: #4787C3;
+			color: white;
+
+			border-radius: 10px;
+
+			&:not(:first-child) { margin-top: 5.5rem; }
+		}// .row-header
 
 		// labels for the fields
 		.label {
@@ -146,6 +177,8 @@ onMounted(()=>{
 			text-align: right;
 			font-weight: 600;
 			padding-top: 0.4rem;
+
+			font-size: 20px;
 
 		}// .label
 

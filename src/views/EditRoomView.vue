@@ -36,14 +36,14 @@
 		<div v-if="displayState === STATE.VALID_ROOM">
 
 			<!-- top section shows the useful details about room (not editable) -->
-			<div class="page-title" align="center">Room Details:</div>
+			<!-- <div class="page-title" align="center">Room Details:</div> -->
 
 			<!-- show the room details form -->
 			<RoomDetailsForm :data="roomDetailsData" class="mb-4" />
 			
 			<br/><br/>
 			<!-- section below is same as creation form-->
-			<div class="page-title" align="center">Edit Room Below:</div>
+			<!-- <div class="page-title" align="center">Edit Room Below:</div> -->
 
 			<!-- reusable form for both this page & edit page -->
 			<RoomForm v-model="formData" />
@@ -88,19 +88,34 @@ const roomDetailsData = reactive({
 	code: roomCode,
 	editCode: '',
 	obsLink: '',
+	shareLink: '',
 });
 
 // object w/ all the user customizable data for the Room form
 const formData = reactive({
-	name: 'a room',
+
+	// general room settings
+	name: '',
 	password: '',
+
+	// obs display
 	themeColor: '00ABAE',
 	showCode: 'bottom-left',
-	penColors: [],
-	penlightSprite: null,
-	duplicateUsers: true,
-	duplicationThreshold: 10,
+	showCodeScale: 1,
 	maxConcurrent: 100,	
+
+	// pen settings
+	penColors: [],
+	allowAnyColor: false,
+	penlightSprite: null,
+	penScale: 1,
+	penTrails: true,
+	penTrailsIntensity: 0.5,
+	penTrailsDecay: 0.5,
+
+	// deprecated pen settings
+	duplicateUsers: false,
+	duplicationThreshold: 10,	
 });
 
 // three states
@@ -169,18 +184,33 @@ async function getPageData(){
 	roomDetailsData.code = data.code;
 	roomDetailsData.editCode = data.editCode;
 	roomDetailsData.obsLink = `${envAppURL}/obs/${data.code}`;
-	roomDetailsData.pageLink = `${envAppURL}/room/${data.code}`;
+	roomDetailsData.shareLink = `${envAppURL}/room/${data.code}`;
 	
 	// update our form data
+
+	// general room settings
 	formData.name = data.name;
 	formData.password = data.password;
+
+	// obs display
 	formData.themeColor = data.themeColor;
 	formData.showCode = data.showCode;
+	formData.showCodeScale = data.showCodeScale;
+	formData.maxConcurrent = data.maxConcurrent;
+
+	// pen settings
 	formData.penColors = data.penColors;
+	formData.allowAnyColor = data.allowAnyColor;
 	formData.penlightSprite = data.penlightSprite;
+	formData.penScale = data.penScale;
+	formData.penTrails = data.penTrails;
+	formData.penTrailsIntensity = data.penTrailsIntensity;
+	formData.penTrailsDecay = data.penTrailsDecay;
+
+	// deprecated pen settings
 	formData.duplicateUsers = data.duplicateUsers;
 	formData.duplicationThreshold = data.duplicationThreshold;
-	formData.maxConcurrent = data.maxConcurrent;
+	
 
 	// now we have a valid room
 	displayState.value = STATE.VALID_ROOM;
