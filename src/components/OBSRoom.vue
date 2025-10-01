@@ -56,6 +56,7 @@ import { computed, onMounted, onBeforeUnmount, ref, watch, reactive, shallowRef 
 // components
 import PenLight from '../components/PenLight.vue';
 import PenLightTrails from '../components/PenLightTrails.vue';
+import { transform } from 'zod';
 
 // define some props
 const props = defineProps({
@@ -227,7 +228,8 @@ const codeCornerClass = computed(() => {
  * CSS style for the room code element (theme color)
  */
 const codeStyle = computed(() => ({
-	'--code-color': `#${themeHex.value}`
+	'--code-color': `#${themeHex.value}`,
+	transform: `scale(${Number(props.roomDetails?.showCodeScale || 1)})`
 }));
 
 
@@ -552,10 +554,28 @@ onBeforeUnmount(() => {
 
 
 		// fixed positioning for the different corner settings
-		.code-top-left { top: 12px; left: 12px; }
-		.code-top-right { top: 12px; right: 12px; text-align: right; }
-		.code-bottom-left { bottom: 12px; left: 12px; }
-		.code-bottom-right { bottom: 12px; right: 12px; text-align: right; }
+		.code-top-left { 
+			top: 12px; 
+			left: 12px;
+			transform-origin: top left;
+		}
+		.code-top-right { 
+			top: 12px; 
+			right: 12px; 
+			text-align: right;
+			transform-origin: top right;
+		}
+		.code-bottom-left { 
+			bottom: 12px; 
+			left: 12px;
+			transform-origin: bottom left;
+		}
+		.code-bottom-right { 
+			bottom: 12px; 
+			right: 12px; 
+			text-align: right;
+			transform-origin: bottom right;
+		}
 
 	}// .obs-stage
 

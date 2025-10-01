@@ -49,7 +49,6 @@
 			</div>
 		</div>
 
-
 		<div class="row-header">OBS Display:</div>
 
 		<!-- THEME COLOR -->
