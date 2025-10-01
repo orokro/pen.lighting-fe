@@ -8,6 +8,9 @@
 	<canvas 
 		ref="trailCanvas"
 		class="trail-canvas"
+		:style="{
+			opacity: intensity,
+		}"
 	></canvas>
 </template>
 <script setup>
@@ -26,7 +29,22 @@ const props = defineProps({
 	penlightRefs: {
 		type: Array,
 		required: true
+	},
+
+	// essentially the opacity of the trails
+	intensity: {
+		type: Number,
+		required: false,
+		default: 0.5
+	},
+
+	// how quickly the trails fade out (0-1)
+	decay: {
+		type: Number,
+		required: false,
+		default: 0.5
 	}
+	
 });
 
 // Reference to the canvas element
@@ -53,11 +71,31 @@ let frameNum = 0;
 
 	const { width, height } = ctx.canvas;
 
+	// const decayAlpha = 1-(1 - props.decay * 0.05);
+
+	// by default props.decay is 0.5 (range 0-1)
+	
+	// if the props value is 0.5 or less, we'll keep it unaffected
+	// we'll use this base value
+	let decayAlpha = 0.98 * props.decay;
+
+	// but if it's over 0.5, we'll instead use a different formula
+	if(props.decay > 0.5) {
+
+		// map 0.5-1 to 0-1
+		const adjDecay = (props.decay - 0.5) * 2;
+
+		// map that to a range of 0.98-1
+		decayAlpha = 0.98 + (adjDecay * 0.02);		
+	}
+
+	decayAlpha = 0.85 + (props.decay) * (0.99-0.85);
+
 	// 1) Multiply existing alpha by 0.95 (≈5% fade per frame).
 	// After ~117 frames, 0.95^n * 255 < 1 → alpha becomes 0.
 	ctx.save();
 	ctx.globalCompositeOperation = 'destination-in';
-	ctx.globalAlpha = 0.98;   // smaller => longer trails; bigger => faster fade
+	ctx.globalAlpha = decayAlpha; //0.98 ;   // smaller => longer trails; bigger => faster fade
 	ctx.fillRect(0, 0, width, height);
 	ctx.restore();
 
@@ -99,9 +137,12 @@ function thresholdWipe(ctx, cutoff = 10) {
  * Uses requestAnimationFrame to schedule the next frame.
  */
 function renderLoop() {
-	if (!ctx) return
-	drawTrail(ctx)
-	frameId = requestAnimationFrame(renderLoop)
+
+	if (!ctx)
+		return;
+
+	drawTrail(ctx);
+	frameId = requestAnimationFrame(renderLoop);
 }
 
 
@@ -124,7 +165,7 @@ onMounted(() => {
 
 	// Optional: handle resize
 	window.addEventListener('resize', resizeCanvas);
-})
+});
 
 
 // Cleanup on unmount
@@ -134,7 +175,7 @@ onBeforeUnmount(() => {
 		cancelAnimationFrame(frameId);
 
 	window.removeEventListener('resize', resizeCanvas);
-})
+});
 
 
 /**

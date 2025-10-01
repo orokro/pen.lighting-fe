@@ -61,7 +61,7 @@ const formData = reactive({
 	penScale: 1,
 	penTrails: true,
 	penTrailsIntensity: 0.5,
-	penTrailsDecay: 0.5,
+	penTrailsDecay: 0.8,
 
 	// deprecated pen settings
 	duplicateUsers: false,

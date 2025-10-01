@@ -25,7 +25,10 @@
 		</div>
 
 		<PenLightTrails
+			v-if="roomDetails?.penTrails"
 			:penlightRefs="Array.from(penRefs.values())"
+			:intensity="roomDetails?.penTrailsIntensity || 0.5"
+			:decay="roomDetails?.penTrailsDecay || 0.5"
 		/>
 
 		<!-- Rendered penlights (possibly limited by maxConcurrent, plus duplicates) -->
@@ -446,6 +449,7 @@ const displayedPenlights = computed(() => {
 */
 onMounted(() => {
 
+	console.log('OBSRoom mounted', props.roomDetails);
 	// measure our stage size
 	updateStageSize();
 
