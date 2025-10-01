@@ -27,16 +27,10 @@
 			@touchend.stop
 			@click.stop
 		>
-			<select id="colorSelect" class="color-select" @change="onColorChange">
-				<option
-					v-for="hex, index in roomDetails.penColors"
-					:key="hex"
-					:value="index"
-					:selected="isSelectedColor(hex)"
-				>
-					{{ '#' + hex.toUpperCase() }}
-				</option>
-			</select>
+			<ColorSelectList
+				:colors="roomDetails.penColors"
+				v-model="props.userRoomState.colorRef.value"			
+			/>
 		</div>
 
 		<!-- Option for Auto Wave (top-right) -->
@@ -95,6 +89,7 @@ import { computed, onMounted, onBeforeUnmount, ref } from 'vue';
 // components
 import PenLight from './PenLight.vue';
 import PenLightTrails from './PenLightTrails.vue';
+import ColorSelectList from './ColorSelectList.vue';
 
 // define props
 const props = defineProps({
