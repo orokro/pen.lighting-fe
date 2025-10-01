@@ -9,6 +9,8 @@
 	<!-- main outer most wrapper -->
 	<div class="room-form">
 
+		<div class="row-header">General Room Settings</div>
+
 		<!-- NAME -->
 		<div class="row">
 			<div class="label" for="name">
@@ -47,6 +49,9 @@
 			</div>
 		</div>
 
+
+		<div class="row-header">OBS Display:</div>
+
 		<!-- THEME COLOR -->
 		<div class="row">
 			<div class="label" for="themeColor">
@@ -82,6 +87,25 @@
 				</select>
 			</div>
 		</div>
+
+		<!-- MAX CONCURRENT -->
+		<div class="row">
+			<div class="label" for="maxConc">
+				Max Concurrent
+				<div class="desc">How many users to render in OBS</div>
+			</div>
+			<div class="field">
+				<input
+					id="maxConc"
+					type="number"
+					min="1"
+					:value="model.maxConcurrent"
+					@input="setMaxConcurrent($event.target.value)"
+				/>
+			</div>
+		</div>
+
+		<div class="row-header">Pen Lights:</div>
 
 		<!-- PEN COLORS -->
 		<div class="row">
@@ -210,30 +234,13 @@
 				/>
 			</div>
 		</div>
-
-		<!-- MAX CONCURRENT -->
-		<div class="row">
-			<div class="label" for="maxConc">
-				Max Concurrent
-				<div class="desc">How many to render in OBS</div>
-		</div>
-			<div class="field">
-				<input
-					id="maxConc"
-					type="number"
-					min="1"
-					:value="model.maxConcurrent"
-					@input="setMaxConcurrent($event.target.value)"
-				/>
-			</div>
-		</div>
+		
 	</div>
 </template>
 <script setup>
 
 // vue & libs
 import { reactive, computed, watch, ref, nextTick } from 'vue'
-import { z } from 'zod'
 
 /**
  * v-model (object) — controlled component.
@@ -257,6 +264,7 @@ const props = defineProps({
 // define vents for updating the model
 const emit = defineEmits(['update:modelValue'])
 
+
 // computed model proxy
 const model = computed({
 	get() { return props.modelValue },
@@ -265,17 +273,30 @@ const model = computed({
 
 
 /* ---------- Validation bits ---------- */
-const HEX6 = /^[0-9A-Fa-f]{6}$/
-const HEX6_WITH_HASH = /^#[0-9A-Fa-f]{6}$/
-const NAME_RE = /^[0-9a-zA-Z,.! ]+$/
-// relaxed “default” special symbols + alnum + space
-const PASS_RE = /^[0-9A-Za-z ,.!\-_=+@#$%^&*(){}\[\]|\\:;"'<>,.?/~`]+$/
+const HEX6 = /^[0-9A-Fa-f]{6}$/;
+const HEX6_WITH_HASH = /^#[0-9A-Fa-f]{6}$/;
+const NAME_RE = /^[0-9a-zA-Z,.! ]+$/;
 
+// relaxed “default” special symbols + alnum + space
+const PASS_RE = /^[0-9A-Za-z ,.!\-_=+@#$%^&*(){}\[\]|\\:;"'<>,.?/~`]+$/;
+
+
+/**
+ * Helpers to validate name input
+ * 
+ * @param {string} v - value to validate
+ */
 function validName(v) {
-	return v === '' || (typeof v === 'string' && v.length <= 64 && NAME_RE.test(v))
+	return v === '' || (typeof v === 'string' && v.length <= 64 && NAME_RE.test(v));
 }
+
+/**
+ * Helpers to validate password input
+ * 
+ * @param {string} v - value to validate
+ */
 function validPassword(v) {
-	return v === '' || (typeof v === 'string' && v.length <= 64 && PASS_RE.test(v))
+	return v === '' || (typeof v === 'string' && v.length <= 64 && PASS_RE.test(v));
 }
 
 
@@ -284,8 +305,10 @@ const errors = reactive({
 	name: '',
 	password: '',
 	penColors: '',
-})
+});
 
+
+// local state for name & password inputs, for allowing invalid temporarily
 const localName = ref(model.value.name ?? '')
 const localPassword = ref(model.value.password ?? '')
 
@@ -293,27 +316,36 @@ const localPassword = ref(model.value.password ?? '')
 watch(() => model.value.name, v => { if (v !== localName.value && validName(v ?? '')) localName.value = v ?? '' })
 watch(() => model.value.password, v => { if (v !== localPassword.value && validPassword(v ?? '')) localPassword.value = v ?? '' })
 
+
 /* commit name when valid */
 watch(localName, v => {
+
 	if (validName(v)) {
-		errors.name = ''
-		model.value.name = v
+		errors.name = '';
+		model.value.name = v;
 	} else {
-		errors.name = 'Only 0-9 a-z A-Z , . ! and space; max 64 chars'
+		errors.name = 'Only 0-9 a-z A-Z , . ! and space; max 64 chars';
 	}
 })
+
 
 /* commit password when valid */
 watch(localPassword, v => {
-	if (validPassword(v)) {
-		errors.password = ''
-		model.value.password = v
-	} else {
-		errors.password = 'Invalid characters or length > 64'
-	}
-})
 
-/* Theme color: color input guarantees #RRGGBB, commit stripped uppercase */
+	if (validPassword(v)) {
+
+		errors.password = '';
+		model.value.password = v;
+
+	} else {
+		errors.password = 'Invalid characters or length > 64';
+	}
+});
+
+
+/**
+ * Computed proxy for the theme color input (with #)
+ */
 const themeColorInput = computed({
 	get() {
 		const v = model.value.themeColor || ''
@@ -328,128 +360,232 @@ const themeColorInput = computed({
 	},
 })
 
-/* Show code: select is always valid */
+
+/**
+ * Handles when user changes the "Show Code" select.
+ * 
+ * @param val - new value from select
+ */
 function setShowCode(val) {
+
+	// validate & commit
 	if (['hidden','top-left','top-right','bottom-left','bottom-right'].includes(val)) {
-		model.value.showCode = val
+		model.value.showCode = val;
 	}
 }
 
-/* Pen colors: only add/replace valid 6-hex (no #) */
+
+// state for pen color picking
 const showAddPicker = ref(false)
 const addPickerRef = ref(null)
 const showEditPickerIndex = ref(-1)
 const tempPick = ref('#000000')
 
+
+/**
+ * Opens the "Add Color" popover
+ */
 function openAddPicker() {
-	showEditPickerIndex.value = -1
-	tempPick.value = '#000000'
-	showAddPicker.value = true
-	nextTick(() => addPickerRef.value && addPickerRef.value.focus())
+
+	showEditPickerIndex.value = -1;
+	tempPick.value = '#000000';
+	showAddPicker.value = true;
+	nextTick(() => addPickerRef.value && addPickerRef.value.focus());
 }
 
+
+/**
+ * Adds the color in tempPick to the penColors array if valid
+ */
 function confirmAddColor() {
-	const hex = tempPick.value
+
+	// validate & add
+	const hex = tempPick.value;
 	if (HEX6_WITH_HASH.test(hex)) {
-		const v = hex.slice(1).toUpperCase()
-		if (!model.value.penColors.includes(v)) model.value.penColors.push(v)
-		errors.penColors = ''
+
+		const v = hex.slice(1).toUpperCase();
+
+		if (!model.value.penColors.includes(v))
+			model.value.penColors.push(v);
+
+		errors.penColors = '';
+
 	} else {
-		errors.penColors = 'Pick a 6-digit hex color'
+		errors.penColors = 'Pick a 6-digit hex color';
 	}
-	showAddPicker.value = false
+	showAddPicker.value = false;
 }
 
-function cancelAddColor() { showAddPicker.value = false }
 
+/**
+ * Cancels adding a color
+ */
+function cancelAddColor() { 
+	showAddPicker.value = false;
+}
+
+
+/**
+ * Opens the edit menu for a color swatch
+ * 
+ * @param {number} i - index of color to edit
+ */
 function openEditMenu(i) {
-	showEditPickerIndex.value = (showEditPickerIndex.value === i) ? -1 : i
+	showEditPickerIndex.value = (showEditPickerIndex.value === i) ? -1 : i;
 }
 
+
+/**
+ * Deletes a color from the penColors array
+ * 
+ * @param {number} i - index of color to delete
+ */
 function deleteColor(i) {
-	model.value.penColors.splice(i, 1)
-	showEditPickerIndex.value = -1
+	model.value.penColors.splice(i, 1);
+	showEditPickerIndex.value = -1;
 }
 
-
-let confirmAddColorOnceCleanup = null
-function confirmAddColorOnce(onConfirm, onCancel) {
-	if (confirmAddColorOnceCleanup) confirmAddColorOnceCleanup()
-	const origConfirm = confirmAddColor
-	const origCancel = cancelAddColor
-	confirmAddColor = () => { onConfirm(); cleanup() }
-	cancelAddColor = () => { onCancel(); cleanup() }
-	function cleanup() {
-		confirmAddColor = origConfirm
-		cancelAddColor = origCancel
-		confirmAddColorOnceCleanup = null
-	}
-	confirmAddColorOnceCleanup = cleanup
-}
 
 /* Sprite: PNG -> 256x256 -> base64, commit only if processed */
-const fileInputRef = ref(null)
+const fileInputRef = ref(null);
+
+
+/**
+ * Handles when user picks a file for the sprite
+ * 
+ * @param {Event} e - input change event
+ */
 async function handleSpritePick(e) {
-	const file = e.target.files && e.target.files[0]
-	if (!file) return
-	if (file.type !== 'image/png') return
-	const dataUrl = await readFileAsDataURL(file)
-	const resized = await resizePngToSquare(dataUrl, 256)
-	if (resized) model.value.penlightSprite = resized
-}
-function clearSprite() {
-	model.value.penlightSprite = null
-	if (fileInputRef.value) fileInputRef.value.value = ''
-}
-function readFileAsDataURL(file) {
-	return new Promise((resolve, reject) => {
-		const fr = new FileReader()
-		fr.onload = () => resolve(fr.result)
-		fr.onerror = reject
-		fr.readAsDataURL(file)
-	})
-}
-function resizePngToSquare(dataUrl, size = 256) {
-	return new Promise((resolve) => {
-		const img = new Image()
-		img.onload = () => {
-			const canvas = document.createElement('canvas')
-			canvas.width = size
-			canvas.height = size
-			const ctx = canvas.getContext('2d')
-			ctx.clearRect(0, 0, size, size)
-			const scale = Math.min(size / img.width, size / img.height)
-			const w = Math.round(img.width * scale)
-			const h = Math.round(img.height * scale)
-			const x = Math.floor((size - w) / 2)
-			const y = Math.floor((size - h) / 2)
-			ctx.imageSmoothingEnabled = true
-			ctx.imageSmoothingQuality = 'high'
-			ctx.drawImage(img, x, y, w, h)
-			resolve(canvas.toDataURL('image/png'))
-		}
-		img.onerror = () => resolve(null)
-		img.src = dataUrl
-	})
+
+	// get the file, validate type
+	const file = e.target.files && e.target.files[0];
+	if (!file)
+		return;
+
+	// only accept PNG
+	if (file.type !== 'image/png')
+		return;
+
+	// read as data URL
+	const dataUrl = await readFileAsDataURL(file);
+
+	// resize to 256x256 square & save to model
+	const resized = await resizePngToSquare(dataUrl, 256);
+	if (resized)
+		model.value.penlightSprite = resized;
 }
 
-/* Switch + numbers: coerce to valid ranges, commit immediately */
+
+/**
+ * Clears the sprite from the model & resets file input when user clicks "Clear Image"
+ */
+function clearSprite() {
+
+	model.value.penlightSprite = null;
+	if (fileInputRef.value) fileInputRef.value.value = '';
+}
+
+
+/**
+ * Helper to read a File object as a data URL (base64)
+ * 
+ * @param file - File object
+ */
+function readFileAsDataURL(file) {
+	
+	return new Promise((resolve, reject) => {
+		const fr = new FileReader();
+		fr.onload = () => resolve(fr.result);
+		fr.onerror = reject;
+		fr.readAsDataURL(file);
+	});
+}
+
+
+/**
+ * Resize a PNG data URL to a square of given size, preserving aspect ratio.
+ * 
+ * @param {string} dataUrl - data URL of a PNG image
+ * @param {number} size - optional; size in pixels (width & height) to resize to
+ * @returns Promise<string|null> - resized PNG data URL, or null on error
+ */
+function resizePngToSquare(dataUrl, size = 256) {
+
+	// gotta do it the old fashioned way with canvas, async
+	return new Promise((resolve) => {
+
+		// load the image
+		const img = new Image();
+		img.onload = () => {
+
+			// make in memory canvas w/ correct size
+			const canvas = document.createElement('canvas');
+			canvas.width = size;
+			canvas.height = size;
+
+			// draw the image centered, scaled to fit
+			const ctx = canvas.getContext('2d');
+			ctx.clearRect(0, 0, size, size);
+			const scale = Math.min(size / img.width, size / img.height);
+			const w = Math.round(img.width * scale);
+			const h = Math.round(img.height * scale);
+			const x = Math.floor((size - w) / 2);
+			const y = Math.floor((size - h) / 2);
+			ctx.imageSmoothingEnabled = true;
+			ctx.imageSmoothingQuality = 'high';
+			
+			// resolve promise with resized PNG data URL
+			resolve(canvas.toDataURL('image/png'));
+		}
+
+		// on error, resolve null
+		img.onerror = () => resolve(null);
+		img.src = dataUrl;
+	});
+}
+
+
+/**
+ * Switch + numbers: coerce to valid ranges, commit immediately
+ * 
+ * @param v - value from input event
+ */
 function toggleDuplicateUsers(v) {
 	model.value.duplicateUsers = !!v
 }
+
+
+/**
+ * Handles when user changes duplication threshold input.
+ * 
+ * @param {string} v - value from input event
+ */
 function setDuplicationThreshold(v) {
-	const n = Number(v)
+
+	// validate & commit
+	const n = Number(v);
 	if (Number.isFinite(n)) {
-		const clamped = Math.max(1, Math.min(100, Math.trunc(n)))
-		model.value.duplicationThreshold = clamped
+		const clamped = Math.max(1, Math.min(100, Math.trunc(n)));
+		model.value.duplicationThreshold = clamped;
 	}
 }
+
+
+/**
+ * 
+ * Handles when user changes max concurrent input.
+ * 
+ * @param {string} v value from input event
+ */
 function setMaxConcurrent(v) {
-	const n = Number(v)
+
+	// validate & commit
+	const n = Number(v);
 	if (Number.isFinite(n)) {
-		model.value.maxConcurrent = Math.max(1, Math.trunc(n))
+		model.value.maxConcurrent = Math.max(1, Math.trunc(n));
 	}
 }
+
 </script>
 <style lang="scss" scoped>
 
@@ -569,6 +705,21 @@ function setMaxConcurrent(v) {
 
 		// rows are just a container for label + field
 		.row { display: contents; }
+
+		// to break up sections a bit
+		.row-header {
+			
+			// span across both columns
+			grid-column: 1 / -1;
+
+			background: #00ABAE;
+			background: #4787C3;
+			color: white;
+
+			border-radius: 10px;
+
+			&:not(:first-child) { margin-top: 5.5rem; }
+		}// .row-header
 
 		// labels for the fields
 		.label {
