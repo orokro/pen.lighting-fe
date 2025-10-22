@@ -638,7 +638,10 @@ function resizePngToSquare(dataUrl, size = 256) {
 			const y = Math.floor((size - h) / 2);
 			ctx.imageSmoothingEnabled = true;
 			ctx.imageSmoothingQuality = 'high';
-			
+
+			ctx.imageSmoothingEnabled = true;
+			ctx.drawImage(img, x, y, w, h); // ← missing line
+
 			// resolve promise with resized PNG data URL
 			resolve(canvas.toDataURL('image/png'));
 		}
